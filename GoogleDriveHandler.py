@@ -4,23 +4,25 @@ import googleapiclient.discovery
 import google.auth
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
 
 
-class GoogleHandler:
+class GoogleDriveHandler:
     Exist = False
 
     def __new__(cls, *args, **kwargs):
         """ SINGLETON """
-        if not GoogleHandler.Exist:
-            GoogleHandler.Exist = super().__new__(cls)
-            return GoogleHandler.Exist
-        return GoogleHandler.Exist
+        if not GoogleDriveHandler.Exist:
+            GoogleDriveHandler.Exist = super().__new__(cls)
+            return GoogleDriveHandler.Exist
+        return GoogleDriveHandler.Exist
 
     def __init__(self, path_to_ini: str = "cred.ini", scopes=None):
         self.service_inner = None
         if scopes is None:
-            scopes = ['https://www.googleapis.com/auth/spreadsheets',
-                      'https://www.googleapis.com/auth/drive']
+            scopes = ['https://www.googleapis.com/auth/drive']
         with open(path_to_ini, "r") as file:
             self.configs = dict()
             for string in file.readlines():
@@ -41,21 +43,25 @@ class GoogleHandler:
     def show_files(self) -> list:
         files = []
         page_token = None
-        while True:
-            # pylint: disable=maybe-no-member
-            response = self.service_inner.files().list(
-                fields='nextPageToken, files(id, name)',
-                pageToken=page_token).execute()
-            files.extend(response.get('files', []))
-            page_token = response.get('nextPageToken', None)
-            if page_token is None:
-                break
+        try:
+            while True:
+                # pylint: disable=maybe-no-member
+                response = self.service_inner.files().list(
+                    fields='nextPageToken, files(id, name)',
+                    pageToken=page_token).execute()
+                files.extend(response.get('files', []))
+                page_token = response.get('nextPageToken', None)
+                if page_token is None:
+                    break
+        except HttpError as error:
+            print(F'An error occurred: {error}')
+            return False
         return files
 
-    def create_folder(self, names_for_folders: str) -> bool:
+    def create_folder(self, name_for_folder: str) -> bool:
         try:
             file_metadata = {
-                'name': names_for_folders,
+                'name': name_for_folder,
                 'mimeType': 'application/vnd.google-apps.folder'
             }
             self.service_inner.files().create(body=file_metadata, fields='id').execute()
@@ -74,8 +80,6 @@ class GoogleHandler:
 
 
 if __name__ == '__main__':
-    service = GoogleHandler()
+    service = GoogleDriveHandler()
     service.connect()
-    # service.create_folder("Test_Folder")
-    service.delete_file(service.show_files()[0]["id"])
     print(service.show_files())
