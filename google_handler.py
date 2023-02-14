@@ -66,11 +66,7 @@ class GoogleHandler:
 
     def delete_file(self, name_for_file: str) -> bool:
         try:
-            file_metadata = {
-                'name': name_for_file,
-                'mimeType': 'application/vnd.google-apps.folder'
-            }
-            self.service_inner.files().create(body=file_metadata, fields='id').execute()
+            self.service_inner.files().delete(fileId=name_for_file).execute()
         except HttpError as error:
             print(F'An error occurred: {error}')
             return False
@@ -81,4 +77,5 @@ if __name__ == '__main__':
     service = GoogleHandler()
     service.connect()
     # service.create_folder("Test_Folder")
+    service.delete_file(service.show_files()[0]["id"])
     print(service.show_files())
