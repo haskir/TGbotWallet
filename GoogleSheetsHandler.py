@@ -1,12 +1,8 @@
-from typing import Optional
-import os.path
-import googleapiclient.discovery
-import google.auth
-from googleapiclient.discovery import build
-from googleapiclient.errors import HttpError
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
+from pprint import pprint
+
+import httplib2
+import apiclient
+from oauth2client.service_account import ServiceAccountCredentials
 
 
 class GoogleSheetsHandler:
@@ -33,45 +29,44 @@ class GoogleSheetsHandler:
 
         self._SAMPLE_SPREADSHEET_ID = self.configs.get("sheet_id")
         self._CREDENTIALS_FILE = self.configs.get("account_creds")
-        # self._CREDENTIALS_FILE = r"C:\Users\Haskir\creds\google_auth_for_sheet.json"
+        credentials = ServiceAccountCredentials.from_json_keyfile_name(
+            self._CREDENTIALS_FILE,
+            ['https://www.googleapis.com/auth/spreadsheets',
+             'https://www.googleapis.com/auth/drive'])
+        httpAuth = credentials.authorize(httplib2.Http())
+        self.service_inner = apiclient.discovery.build('sheets', 'v4', http=httpAuth)
 
-        # The file token.json stores the user's access and refresh tokens, and is
-        # created automatically when the authorization flow completes for the first
-        # time.
-        if os.path.exists(path_to_ini):
-            creds = Credentials.from_authorized_user_file(self._CREDENTIALS_FILE, scopes)
-        # If there are no (valid) credentials available, let the user log in.
-        if not creds or not creds.valid:
-            if creds and creds.expired and creds.refresh_token:
-                creds.refresh(Request())
-            else:
-                flow = InstalledAppFlow.from_client_secrets_file(
-                    'credentials.json', scopes)
-                creds = flow.run_local_server(port=0)
-            # Save the credentials for the next run
-            with open('token.json', 'w') as token:
-                token.write(creds.to_json())
+    def show(self, spreadsheet_id: str = None, range: str = "A:1:E10", majorDimension: str = "COLUMNS"):
+        # Пример чтения файла
+        if not spreadsheet_id:
+            spreadsheet_id = self._SAMPLE_SPREADSHEET_ID
 
-        # try:
-        #     service = build('sheets', 'v4', credentials=creds)
-        #     sample_range_name = 'Class Data!A2:E'
-        #     # Call the Sheets API
-        #     sheet = service.spreadsheets()
-        #     result = sheet.values().get(spreadsheetId=self._SAMPLE_SPREADSHEET_ID,
-        #                                 range=sample_range_name).execute()
-        #     values = result.get('values', [])
-        #     if not values:
-        #         print('No data found.')
-        #         return
-        #
-        #     print('Name, Major:')
-        #     for row in values:
-        #         # Print columns A and E, which correspond to indices 0 and 4.
-        #         print('%s, %s' % (row[0], row[4]))
-        # except HttpError as err:
-        #     print(err)
-        # except BaseException as e:
-        #     print(e)
+        values = self.service_inner.spreadsheets().values().get(
+            spreadsheetId=spreadsheet_id,
+            range='A1:E10',
+            majorDimension=majorDimension
+        ).execute()
+        pprint(values)
+
+    def write(self, spreadsheet_id: str):
+        # Пример записи в файл
+        if not spreadsheet_id:
+            spreadsheet_id = self._SAMPLE_SPREADSHEET_ID
+        values = self.service_inner.spreadsheets().values().batchUpdate(
+            spreadsheetId=spreadsheet_id,
+            body={
+                "valueInputOption": "USER_ENTERED",
+                "data": [
+                    {"range": "B3:C4",
+                     "majorDimension": "ROWS",
+                     "values": [["This is B3", "This is C3"], ["This is B4", "This is C4"]]},
+                    {"range": "D5:E6",
+                     "majorDimension": "COLUMNS",
+                     "values": [["This is D5", "This is D6"], ["This is E5", "=5+5"]]}
+                ]
+            }
+        ).execute()
 
 
 sheetHandler = GoogleSheetsHandler()
+sheetHandler.show()
