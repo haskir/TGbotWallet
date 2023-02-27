@@ -1,18 +1,25 @@
 from dataclasses import dataclass
+from TXTFileDB import TxtFileWorker
 
 
+@dataclass
 class User:
-    def __init__(self, uid: int, name: str):
-        self.uid = uid
-        self.name = name
+    uid: int = 0
+    is_bot: bool = False
+    first_name: str = ""
+    last_name: str = ""
+    username: str = ""
+    language_code: str = ""
 
     def __repr__(self):
-        return f"{self.uid=},{self.name=}"
+        return f"{self.uid};{self.is_bot};{self.first_name};{self.last_name};{self.username};{self.language_code}"
 
 
 class UserDatabase:
     Exist = False
-    __database = list()
+
+    def __init__(self):
+        self.__database = list()
 
     def __new__(cls, *args, **kwargs):
         """ SINGLETON """
@@ -21,47 +28,28 @@ class UserDatabase:
             return UserDatabase.Exist
         return UserDatabase.Exist
 
-    def add_user(self, user_uid: User):
-        if isinstance(user_uid, User):
-            self.__class__.__database.append(user_uid)
+    def add_user(self, UserData: User | list):
+        if isinstance(UserData, User):
+            self.__database.append(UserData)
+        elif isinstance(UserData, list):
+            for string in UserData:
+                uid, name = string.strip("\n").split(",")
+                self.add_user(User(uid, name))
         else:
             raise ValueError
 
+    def clear_db(self, psw: int = 2):
+        if 1 == psw:
+            self.__database = []
+
+    @property
+    def database(self):
+        return self.__database
+
     def __repr__(self):
-        return f"{len(self.__class__.__database)}: {self.__class__.__database}"
-
-    def clear_db(self, psw: int = 1):
-        if psw == 1:
-            self.__class__.__database = []
-
-    def upload_db_to_file(self, file_path: str = "./users_database"):
-        from os.path import exists as file_exists
-
-        args = "a" if file_exists(file_path) else "w"
-        with open(file_path, args) as file:
-            for user in self.__class__.__database:
-                file.write(f"{user.uid},{user.name}\n")
-
-    def load_from_file(self, file_path: str = "./users_database"):
-        from os.path import exists as file_exists
-
-        if not file_exists(file_path):
-            raise FileNotFoundError
-
-        with open(file_path, "r") as file:
-            for string in file.readlines():
-                uid, name = string.rstrip("\n").split(",")
-                self.add_user(User(int(uid), name))
+        return f"{len(self.__database)}: {self.__database}"
 
 
+u1 = User(1)
+u2 = User(2)
 d = UserDatabase()
-u1 = User(1, "test1")
-u2 = User(2, "test2")
-d.add_user(u1)
-d.add_user(u2)
-print(d)
-d.upload_db_to_file()
-d.clear_db(1)
-print(d)
-d.load_from_file()
-print(d)
