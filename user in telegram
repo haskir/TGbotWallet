@@ -1,0 +1,28 @@
+{
+  "ok": true,
+  "result": [
+    {
+      "update_id": 396714730,
+      "message": {
+        "message_id": 6337,
+        "from": {
+          "id": 173901673,
+          "is_bot": false,
+          "first_name": "Mikhail",
+          "last_name": "Kryzhanovskiy",
+          "username": "kmsint",
+          "language_code": "ru"
+        },
+        "chat": {
+          "id": 173901673,
+          "first_name": "Mikhail",
+          "last_name": "Kryzhanovskiy",
+          "username": "kmsint",
+          "type": "private"
+        },
+        "date": 1675598444,
+        "text": "Это апдейт текстового типа"
+      }
+    }
+  ]
+}
