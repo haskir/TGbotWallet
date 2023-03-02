@@ -19,10 +19,11 @@ class GoogleDriveHandler:
             return GoogleDriveHandler.Exist
         return GoogleDriveHandler.Exist
 
-    def __init__(self, path_to_ini: str = "cred.ini", scopes=None):
+    def __init__(self, path_to_ini: str = "../cred.ini", scopes=None):
         self.service_inner = None
         if scopes is None:
-            scopes = ['https://www.googleapis.com/auth/drive']
+            scopes = ['https://www.googleapis.com/auth/drive,'
+                      'https://www.googleapis.com/auth/drive.file']
         with open(path_to_ini, "r") as file:
             self.configs = dict()
             for string in file.readlines():
@@ -40,7 +41,7 @@ class GoogleDriveHandler:
         if output:
             print(self.show_files())
 
-    def show_files(self) -> list:
+    def show_files(self) -> list | bool:
         files = []
         page_token = None
         try:
@@ -56,30 +57,56 @@ class GoogleDriveHandler:
         except HttpError as error:
             print(F'An error occurred: {error}')
             return False
-        return files
+        else:
+            return files
 
-    def create_folder(self, name_for_folder: str) -> bool:
+    def create(self, name: str, is_folder: bool = False) -> str:
+        file_metadata = {
+            'name': name,
+            'mimeType': 'application/vnd.google-apps.folder' if is_folder else 'application/vnd.google-apps.spreadsheet'
+        }
         try:
-            file_metadata = {
-                'name': name_for_folder,
-                'mimeType': 'application/vnd.google-apps.folder'
-            }
-            self.service_inner.files().create(body=file_metadata, fields='id').execute()
+            result = self.service_inner.files().create(body=file_metadata, fields='id').execute()
+        except HttpError as error:
+            print(F'An error occurred: {error}')
+            return False
+        return result["id"]
+
+    def delete_file(self, file_id: str) -> bool:
+        try:
+            self.service_inner.files().delete(fileId=file_id).execute()
         except HttpError as error:
             print(F'An error occurred: {error}')
             return False
         return True
 
-    def delete_file(self, name_for_file: str) -> bool:
+    def create_permission(self, file_id: str, user_email: str, role: str = "reader") -> int:
+        """ possible role == organizer writer reader
+            returns permission id """
+        user_permission = {
+            'role': role,
+            'type': "user",
+            'emailAddress': user_email,
+        }
         try:
-            self.service_inner.files().delete(fileId=name_for_file).execute()
+            result = self.service_inner.permissions().create(fileId=file_id,
+                                                             body=user_permission).execute()
         except HttpError as error:
-            print(F'An error occurred: {error}')
+            response = f"Error while getting permissions {error}"
+            print(response)
             return False
-        return True
+        return result["id"]
 
 
 if __name__ == '__main__':
     service = GoogleDriveHandler()
     service.connect()
+    for file in service.show_files():
+        if "test" == file["name"]:
+            service.delete_file(file["id"])
+    test_file_id = service.create("test")
+    print(service.show_files())
+    print(service.create_permission(test_file_id, "haskird2@gmail.com"))
+    input("\n\n")
+    service.delete_file(test_file_id)
     print(service.show_files())
