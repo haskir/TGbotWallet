@@ -4,7 +4,9 @@ class User:
                  first_name: str = "",
                  last_name: str = "",
                  username: str = "",
-                 language_code: str = ""
+                 language_code: str = "",
+                 email: str = "",
+                 sheet_id: str = ""
                  ):
         self.uid = uid
         self.is_bot = is_bot
@@ -12,6 +14,8 @@ class User:
         self.last_name = last_name
         self.username = username
         self.language_code = language_code
+        self.email = email
+        self.sheet_id = sheet_id
 
     def __eq__(self, other):
         if isinstance(other, User):
@@ -27,4 +31,4 @@ class User:
         return {key: value for key, value in self.__dict__.items()}
 
     def __repr__(self):
-        return f"User : {str({key: value for key, value in self.__dict__.items()})}"
+        return f"User : {str({key: value for key, value in self.__dict__.items()})}\n"
