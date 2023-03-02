@@ -87,25 +87,18 @@ class GoogleDriveHandler:
                              commenter
                              reader"""
         user_permission = {
-            "sharedDrive": "No",
-            "permissionType": "User",
-
-             "permissionDetails": [
-                {
-                  "permissionType": "User"
-                }
-             ],
             'role': role,
-            'type ': "user",
-            'emailAddress': user_email
+            'type': "user",
+            'emailAddress': user_email,
         }
         try:
-            self.service_inner.permissions().create(fileId=file_id,
-                                                    body=user_permission,
-                                                    fields="id").execute()
+            result = self.service_inner.permissions().create(fileId=file_id,
+                                                             body=user_permission, ).execute()
         except HttpError as error:
-            print(f"Error while getting permissions {error}")
+            response = f"Error while getting permissions {error}"
+            print(response)
             return False
+        return result
 
 
 if __name__ == '__main__':
@@ -116,7 +109,7 @@ if __name__ == '__main__':
             service.delete_file(file["id"])
     test_file_id = service.create("test")
     print(service.show_files())
-    service.create_permission(test_file_id, "haskird2@gmail.com")
+    print(service.create_permission(test_file_id, "haskird2@gmail.com"))
     input("\n\n")
     service.delete_file(test_file_id)
     print(service.show_files())
