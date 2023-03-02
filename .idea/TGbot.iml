@@ -11,6 +11,7 @@
     <option name="namespacePackageFolders">
       <list>
         <option value="$MODULE_DIR$/Dataclasses" />
+        <option value="$MODULE_DIR$/Interfaces" />
       </list>
     </option>
   </component>

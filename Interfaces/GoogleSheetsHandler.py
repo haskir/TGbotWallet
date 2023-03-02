@@ -5,7 +5,7 @@ import apiclient
 from oauth2client.service_account import ServiceAccountCredentials
 
 
-class GoogleSheetsHandler:
+class GoogleSheetsHandler():
     Exist = False
 
     def __new__(cls, *args, **kwargs):
@@ -15,7 +15,7 @@ class GoogleSheetsHandler:
             return GoogleSheetsHandler.Exist
         return GoogleSheetsHandler.Exist
 
-    def __init__(self, path_to_ini: str = "cred.ini", scopes=None):
+    def __init__(self, path_to_ini: str = "../cred.ini", scopes=None):
         """Shows basic usage of the Sheets API. Print values from a sample spreadsheet"""
         creds = None
 
