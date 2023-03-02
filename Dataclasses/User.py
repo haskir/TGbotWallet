@@ -6,8 +6,9 @@ class User:
                  username: str = "",
                  language_code: str = "",
                  email: str = "",
-                 sheet_id: str = ""
-                 ):
+                 sheet_id: str = "",
+                 permission_id: int = 0
+):
         self.uid = uid
         self.is_bot = is_bot
         self.first_name = first_name
@@ -16,6 +17,7 @@ class User:
         self.language_code = language_code
         self.email = email
         self.sheet_id = sheet_id
+        self.permission_id = permission_id
 
     def __eq__(self, other):
         if isinstance(other, User):

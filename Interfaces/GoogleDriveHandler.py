@@ -41,7 +41,7 @@ class GoogleDriveHandler:
         if output:
             print(self.show_files())
 
-    def show_files(self) -> list:
+    def show_files(self) -> list | bool:
         files = []
         page_token = None
         try:
@@ -80,12 +80,9 @@ class GoogleDriveHandler:
             return False
         return True
 
-    def create_permission(self, file_id: str, user_email: str, role: str = "reader") -> bool:
-        """ possible role == organizer
-                             fileOrganizer
-                             writer
-                             commenter
-                             reader"""
+    def create_permission(self, file_id: str, user_email: str, role: str = "reader") -> int:
+        """ possible role == organizer writer reader
+            returns permission id """
         user_permission = {
             'role': role,
             'type': "user",
@@ -93,12 +90,12 @@ class GoogleDriveHandler:
         }
         try:
             result = self.service_inner.permissions().create(fileId=file_id,
-                                                             body=user_permission, ).execute()
+                                                             body=user_permission).execute()
         except HttpError as error:
             response = f"Error while getting permissions {error}"
             print(response)
             return False
-        return result
+        return result["id"]
 
 
 if __name__ == '__main__':
