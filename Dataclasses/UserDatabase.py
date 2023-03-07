@@ -23,6 +23,9 @@ class UserDatabase:
         else:
             raise ValueError
 
+    def db_to_list(self) -> list:
+        return [user.user_to_dict() for user in self.database]
+
     def clear_db(self, *args, psw: int = 1):
         if 5 == psw:
             self.database = []
