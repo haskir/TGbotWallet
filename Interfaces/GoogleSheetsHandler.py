@@ -49,12 +49,12 @@ class GoogleSheetsHandler:
         ).execute()
         pprint(values)
 
-    def append(self, spreadsheet_id: str, data: list, category: str = "Sheet1"):
+    def append_row(self, spreadsheet_id: str, data: list, category: str = "Sheet1"):
         values = {
             "values": [data]
         }
         try:
-            response = self.service_inner.spreadsheets().values().append(
+            self.service_inner.spreadsheets().values().append(
                 spreadsheetId=spreadsheet_id,
                 range=f"{category}!A1:Z1",
                 valueInputOption="USER_ENTERED",
@@ -63,14 +63,27 @@ class GoogleSheetsHandler:
         except HTTPError as e:
             print(e)
 
+    def clear_row(self, spreadsheet_id: str, row: int, category: str = "Sheet1"):
+        try:
+            self.service_inner.spreadsheets().values().clear(
+                spreadsheetId=spreadsheet_id,
+                range=f"{category}!{row}:{row}").execute()
+        except HTTPError as e:
+            print(e)
+
 
 if __name__ == "__main__":
     from GoogleDriveHandler import GoogleDriveHandler
     service = GoogleDriveHandler()
     uid = service.create("test")
-    sheetHandler = GoogleSheetsHandler()
-    service.create_permission(uid, "haskird2@gmail.com")
-    data_in = [1, 2]
-    sheetHandler.append(uid, data_in)
-    input("Нажми Enter для удаления тестовой таблички")
-    service.delete_tests()
+    try:
+        sheetHandler = GoogleSheetsHandler()
+        service.create_permission(uid, "haskird2@gmail.com")
+        data_in = [1, 2]
+        sheetHandler.append_row(uid, data_in)
+        sheetHandler.append_row(uid, data_in)
+        input("Нажми Enter для удаления первой строчки")
+        sheetHandler.clear_row(uid, 1)
+        input("Нажми Enter для удаления тестовой таблички")
+    finally:
+        service.delete_tests()
