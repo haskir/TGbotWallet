@@ -4,38 +4,41 @@ from Dataclasses import UserDatabase, User
 
 
 class UserDbSheetsHandler:
-    def __init__(self, g_service: GoogleDriveHandler):
-        self.g_service = g_service
+    def __init__(self, googleHandler: GoogleDriveHandler, sheetHandler: GoogleSheetsHandler):
+        self.googleHandler = googleHandler
+        self.sheetHandler = sheetHandler
         self.db_uid = ""
 
-        if not self.g_service.connected:
-            self.g_service.connect()
-
-        for Gfile in self.g_service.show_files():
+        for Gfile in self.googleHandler.show_files():
             if Gfile["name"] == "UserDatabase":
                 self.db_uid = Gfile["id"]
 
         if not self.db_uid:
-            self.db_uid = self.g_service.create("UserDatabase")
+            self.db_uid = self.googleHandler.create("UserDatabase")
             print("File UserDatabase has been created in Google Drive")
-            self.g_service.create_permission(self.db_uid, "haskird2@gmail.com")
+            self.googleHandler.create_permission(self.db_uid, "haskird2@gmail.com")
 
-    @classmethod
-    def load_db_to_google(cls, UDb: UserDatabase):
-        """ НЕ ДОПИСАНО """
-        result_list = []
+    def load_db_to_google(self, UDb: UserDatabase):
         for user in UDb.database:
-            result_list.append(list(user.user_to_dict().values()))
+            print(user)
+            self.sheetHandler.append_row(self.db_uid, user.user_to_list())
 
-        print(result_list)
+    def clear_db(self, debug=False):
+        for i in range(1, self.sheetHandler.last_row(self.db_uid)+1):
+            self.sheetHandler.clear_row(self.db_uid, i)
+            if debug:
+                print(f"Clearing row: {i}", end="...\n")
 
 
 if __name__ == "__main__":
-    ser = GoogleDriveHandler()
+    g_hand = GoogleDriveHandler()
     db = UserDatabase()
-    users = [User(1), User(2)]
+    users = [User(i) for i in range(6)]
+    s_hand = GoogleSheetsHandler()
     for u in users:
         db.add_user(u)
-    testHandler = UserDbSheetsHandler(ser)
+    testHandler = UserDbSheetsHandler(g_hand, s_hand)
     testHandler.load_db_to_google(db)
-
+    s_hand.last_row(testHandler.db_uid)
+    input()
+    testHandler.clear_db()

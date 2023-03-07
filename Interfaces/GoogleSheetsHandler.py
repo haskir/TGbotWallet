@@ -56,24 +56,34 @@ class GoogleSheetsHandler:
         try:
             self.service_inner.spreadsheets().values().append(
                 spreadsheetId=spreadsheet_id,
-                range=f"{category}!A1:Z1",
+                range=f"{category}!A1:I1",
                 valueInputOption="USER_ENTERED",
                 insertDataOption="INSERT_ROWS",
                 body=values).execute()
         except HTTPError as e:
             print(e)
 
-    def clear_row(self, spreadsheet_id: str, row: int, category: str = "Sheet1"):
+    def clear_row(self, spreadsheet_id: str, row: int, category: str = "Sheet1!"):
         try:
             self.service_inner.spreadsheets().values().clear(
                 spreadsheetId=spreadsheet_id,
-                range=f"{category}!{row}:{row}").execute()
+                range=f"{category}{row}:{row}").execute()
+        except HTTPError as e:
+            print(e)
+
+    def last_row(self, spreadsheet_id: str, category: str = "Sheet1!") -> int:
+        try:
+            result = self.service_inner.spreadsheets().values(). \
+                get(spreadsheetId=spreadsheet_id,
+                    range=f"{category}A:A").execute()
+            return len(result["values"])
         except HTTPError as e:
             print(e)
 
 
 if __name__ == "__main__":
     from GoogleDriveHandler import GoogleDriveHandler
+
     service = GoogleDriveHandler()
     uid = service.create("test")
     try:
