@@ -21,6 +21,7 @@ class GoogleDriveHandler:
 
     def __init__(self, path_to_ini: str = "../cred.ini", scopes=None):
         self.service_inner = None
+        self.connected: bool = False
         if scopes is None:
             scopes = ['https://www.googleapis.com/auth/drive,'
                       'https://www.googleapis.com/auth/drive.file']
@@ -32,16 +33,18 @@ class GoogleDriveHandler:
         self._SAMPLE_SPREADSHEET_ID = self.configs.get("sheet_id")
         self._CREDENTIALS_FILE = self.configs.get("account_creds")
 
-    def connect(self, output: bool = False) -> googleapiclient.discovery.build:
+    def __connect(self, output: bool = False) -> googleapiclient.discovery.build:
         """If output == True prints array of files"""
         creds, _ = google.auth.load_credentials_from_file(self._CREDENTIALS_FILE)
         self.service_inner = build(serviceName='drive', version='v3', credentials=creds)
         files = []
-
+        self.connected = True
         if output:
             print(self.show_files())
 
     def show_files(self) -> list | bool:
+        if not self.connected:
+            self.__connect()
         files = []
         page_token = None
         try:
@@ -61,6 +64,8 @@ class GoogleDriveHandler:
             return files
 
     def create(self, name: str, is_folder: bool = False) -> str:
+        if not self.connected:
+            self.__connect()
         file_metadata = {
             'name': name,
             'mimeType': 'application/vnd.google-apps.folder' if is_folder else 'application/vnd.google-apps.spreadsheet'
@@ -73,6 +78,8 @@ class GoogleDriveHandler:
         return result["id"]
 
     def delete_file(self, file_id: str) -> bool:
+        if not self.connected:
+            self.__connect()
         try:
             self.service_inner.files().delete(fileId=file_id).execute()
         except HttpError as error:
@@ -81,6 +88,8 @@ class GoogleDriveHandler:
         return True
 
     def create_permission(self, file_id: str, user_email: str, role: str = "reader") -> int:
+        if not self.connected:
+            self.__connect()
         """ possible role == organizer writer reader
             returns permission id """
         user_permission = {
@@ -97,10 +106,16 @@ class GoogleDriveHandler:
             return False
         return result["id"]
 
+    def delete_tests(self):
+        if not self.connected:
+            self.__connect()
+        for file in self.show_files():
+            if "test" == file["name"]:
+                self.delete_file(file["id"])
+
 
 if __name__ == '__main__':
     service = GoogleDriveHandler()
-    service.connect()
     for file in service.show_files():
         if "test" == file["name"]:
             service.delete_file(file["id"])
