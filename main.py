@@ -1,15 +1,19 @@
 from aiogram import Bot, Dispatcher
 from aiogram.filters import Command
 from aiogram.types import Message
+from Services import UserStates
+from aiogram.fsm.storage.memory import MemoryStorage
 import os
 import dotenv
+
 dotenv.load_dotenv()
 
-API_TOKEN: str = os.getenv('BOT_TOKEN') 
+API_TOKEN: str = os.getenv('BOT_TOKEN')
 
 # Создаем объекты бота и диспетчера
 bot: Bot = Bot(token=API_TOKEN)
-dp: Dispatcher = Dispatcher(bot=bot)
+storage: MemoryStorage = MemoryStorage()
+dp: Dispatcher = Dispatcher(bot=bot, storage=storage)
 
 
 # Этот хэндлер будет срабатывать на команду "/start"

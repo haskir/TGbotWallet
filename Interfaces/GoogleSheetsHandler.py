@@ -3,9 +3,10 @@ from pprint import pprint
 import httplib2
 import apiclient
 from oauth2client.service_account import ServiceAccountCredentials
+from urllib.error import HTTPError
 
 
-class GoogleSheetsHandler():
+class GoogleSheetsHandler:
     Exist = False
 
     def __new__(cls, *args, **kwargs):
@@ -48,25 +49,28 @@ class GoogleSheetsHandler():
         ).execute()
         pprint(values)
 
-    def write(self, spreadsheet_id: str):
-        # Пример записи в файл
-        if not spreadsheet_id:
-            spreadsheet_id = self._SAMPLE_SPREADSHEET_ID
-        values = self.service_inner.spreadsheets().values().batchUpdate(
-            spreadsheetId=spreadsheet_id,
-            body={
-                "valueInputOption": "USER_ENTERED",
-                "data": [
-                    {"range": "B3:C4",
-                     "majorDimension": "ROWS",
-                     "values": [["This is B3", "This is C3"], ["This is B4", "This is C4"]]},
-                    {"range": "D5:E6",
-                     "majorDimension": "COLUMNS",
-                     "values": [["This is D5", "This is D6"], ["This is E5", "=5+5"]]}
-                ]
-            }
-        ).execute()
+    def append(self, spreadsheet_id: str, data: list, category: str = "Sheet1"):
+        values = {
+            "values": [data]
+        }
+        try:
+            response = self.service_inner.spreadsheets().values().append(
+                spreadsheetId=spreadsheet_id,
+                range=f"{category}!A1:Z1",
+                valueInputOption="USER_ENTERED",
+                insertDataOption="INSERT_ROWS",
+                body=values).execute()
+        except HTTPError as e:
+            print(e)
 
 
-sheetHandler = GoogleSheetsHandler()
-sheetHandler.show()
+if __name__ == "__main__":
+    from GoogleDriveHandler import GoogleDriveHandler
+    service = GoogleDriveHandler()
+    uid = service.create("test")
+    sheetHandler = GoogleSheetsHandler()
+    service.create_permission(uid, "haskird2@gmail.com")
+    data_in = [1, 2]
+    sheetHandler.append(uid, data_in)
+    input("Нажми Enter для удаления тестовой таблички")
+    service.delete_tests()
