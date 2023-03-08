@@ -4,7 +4,7 @@ from datetime import date as date
 
 @dataclasses.dataclass
 class Transaction:
-    uid: int
+    uid: int | None
     category: str
     transaction_date: str | None
     market: str
@@ -16,7 +16,7 @@ class Transaction:
             self.transaction_date = date.today().strftime("%d.%m.%Y")
 
     def __iter__(self):
-        return iter(list(self.__dict__.values()))
+        return iter([value for key, value in self.__dict__.items() if key != "category"])
 
     def __next__(self):
         return next(iter(self))
