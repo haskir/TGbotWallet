@@ -1,36 +1,30 @@
-from typing import Optional
-import os.path
 import googleapiclient.discovery
 import google.auth
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
 
 
-class GoogleDriveHandler:
+class GoogleDriver:
     Exist = False
 
     def __new__(cls, *args, **kwargs):
         """ SINGLETON """
-        if not GoogleDriveHandler.Exist:
-            GoogleDriveHandler.Exist = super().__new__(cls)
-            return GoogleDriveHandler.Exist
-        return GoogleDriveHandler.Exist
+        if not GoogleDriver.Exist:
+            GoogleDriver.Exist = super().__new__(cls)
+            return GoogleDriver.Exist
+        return GoogleDriver.Exist
 
     def __init__(self, path_to_ini: str = "../cred.ini", scopes=None):
         self.service_inner = None
         self.connected: bool = False
         if scopes is None:
             scopes = ['https://www.googleapis.com/auth/drive,'
-                      'https://www.googleapis.com/auth/drive.file']
+                      'https://www.googleapis.com/auth/drive.file',
+                      'https://www.googleapis.com/auth/spreadsheets']
         with open(path_to_ini, "r") as file:
             self.configs = dict()
             for string in file.readlines():
                 self.configs[string.split("=")[0]] = string.split("=")[1].rstrip()
-
-        self._SAMPLE_SPREADSHEET_ID = self.configs.get("sheet_id")
         self._CREDENTIALS_FILE = self.configs.get("account_creds")
 
     def __connect(self, output: bool = False) -> googleapiclient.discovery.build:
@@ -115,7 +109,7 @@ class GoogleDriveHandler:
 
 
 if __name__ == '__main__':
-    service = GoogleDriveHandler()
+    service = GoogleDriver()
     for file in service.show_files():
         if "test" == file["name"]:
             service.delete_file(file["id"])

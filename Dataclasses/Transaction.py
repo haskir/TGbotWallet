@@ -1,17 +1,27 @@
-from dataclasses import dataclass
+import dataclasses
 from datetime import date as date
 
 
-@dataclass
+@dataclasses.dataclass
 class Transaction:
     uid: int
-    transaction_date: date
-    market: str
     category: str
+    transaction_date: str | None
+    market: str
     total: int | float
     description: str
 
+    def __post_init__(self):
+        if self.transaction_date is None:
+            self.transaction_date = date.today().strftime("%d.%m.%Y")
+
+    def __iter__(self):
+        return iter(list(self.__dict__.values()))
+
+    def __next__(self):
+        return next(iter(self))
+
 
 if __name__ == "__main__":
-    today = date.today()
-    print(today)
+    t_tran = Transaction(1, "Еда", None, "Пятёрочка", 999, "Чипсы")
+    print(list(t_tran))

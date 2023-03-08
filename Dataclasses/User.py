@@ -11,6 +11,7 @@ class User(dict):
                  email: str = "EMPTY_VALUE",
                  sheet_id: str = "EMPTY_VALUE",
                  permission_id: str = "EMPTY_VALUE"):
+        """ Accepts *args or list or dict"""
         if isinstance(uid, int):
             self.uid = uid
             self.is_bot = is_bot
