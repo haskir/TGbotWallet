@@ -27,8 +27,6 @@ class GoogleSheets:
             self.configs = dict()
             for string in file.readlines():
                 self.configs[string.split("=")[0]] = string.split("=")[1].rstrip()
-
-        self._SAMPLE_SPREADSHEET_ID = self.configs.get("sheet_id")
         self._CREDENTIALS_FILE = self.configs.get("account_creds")
         credentials = ServiceAccountCredentials.from_json_keyfile_name(
             self._CREDENTIALS_FILE,
@@ -37,15 +35,15 @@ class GoogleSheets:
         httpAuth = credentials.authorize(httplib2.Http())
         self.service_inner = apiclient.discovery.build('sheets', 'v4', http=httpAuth)
 
-    def show(self, spreadsheet_id: str = None, range: str = "A:1:E10", majorDimension: str = "COLUMNS"):
-        # Пример чтения файла
-        if not spreadsheet_id:
-            spreadsheet_id = self._SAMPLE_SPREADSHEET_ID
-
+    def show(self, spreadsheet_id: str = None, start: int = 1, stop: int = 1):
+        if not start:
+            start = 1
+        if not stop:
+            stop = 1
         values = self.service_inner.spreadsheets().values().get(
             spreadsheetId=spreadsheet_id,
-            range='A1:E10',
-            majorDimension=majorDimension
+            range=f'A{start}:Z{stop}',
+            majorDimension="ROWS"
         ).execute()
         pprint(values)
 
@@ -73,10 +71,13 @@ class GoogleSheets:
 
     def last_row(self, spreadsheet_id: str, category: str = "Sheet1!") -> int:
         try:
-            result = self.service_inner.spreadsheets().values(). \
-                get(spreadsheetId=spreadsheet_id,
-                    range=f"{category}A:A").execute()
-            return len(result["values"])
+            result = self.service_inner.spreadsheets().values().get(
+                spreadsheetId=spreadsheet_id,
+                range=f"{category}A:A").execute()
+            if "values" in result.keys():
+                return len(result["values"])
+            else:
+                return 0
         except HTTPError as e:
             print(e)
 

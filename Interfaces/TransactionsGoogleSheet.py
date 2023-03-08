@@ -4,8 +4,11 @@ from Interfaces import *
 
 class TransactionsGoogleSheet:
     @classmethod
-    def write(cls, db_uid: str, transaction: Transaction, sheethandler: GoogleSheets):
-        sheethandler.append_row(db_uid, list(transaction))
+    def write(cls, sheet_uid: str, transaction: Transaction, sheethandler: GoogleSheets):
+        transaction.uid = sheethandler.show(sheet_uid,
+                                            start=sheethandler.last_row(sheet_uid),
+                                            stop=sheethandler.last_row(sheet_uid) + 1)
+        sheethandler.append_row(sheet_uid, list(transaction), category=transaction.category)
 
 
 if __name__ == "__main__":
@@ -14,7 +17,7 @@ if __name__ == "__main__":
     s_handler = GoogleSheets()
     uid_sheet = g_handler.create("test")
     g_handler.create_permission(uid_sheet, "haskird2@gmail.com")
-    t_tran = Transaction(1, "Еда", None, "Пятёрочка", 999, "Чипсы")
+    t_tran = Transaction(0, "Еда", None, "Пятёрочка", 999, "Чипсы")
     TransactionsGoogleSheet.write(uid_sheet, t_tran, s_handler)
     input("Удалить таблицу")
     g_handler.delete_tests()
