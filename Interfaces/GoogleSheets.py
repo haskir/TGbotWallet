@@ -81,6 +81,12 @@ class GoogleSheets:
         except HTTPError as e:
             print(e)
 
+    def create_spreadsheet(self):
+        ...
+
+    def show_spreadsheets(self):
+        ...
+
 
 if __name__ == "__main__":
     from GoogleDriver import GoogleDriver
