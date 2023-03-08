@@ -24,7 +24,7 @@ class UDbJsonHandler:
 
         with open(file_path, "r") as file:
             for user in load(file):
-                self.userdatabase.add_user(User.create_user_from_dict(user))
+                self.userdatabase.add_user(User(user))
             return True
 
     def __repr__(self):
