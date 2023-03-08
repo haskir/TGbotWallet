@@ -1,10 +1,9 @@
-from GoogleDriveHandler import *
-from GoogleSheetsHandler import *
-from Dataclasses import UserDatabase, User
+from Dataclasses import *
+from Interfaces import *
 
 
-class UserDbSheetsHandler:
-    def __init__(self, googleHandler: GoogleDriveHandler, sheetHandler: GoogleSheetsHandler):
+class UdbGoogleSheetHandler:
+    def __init__(self, googleHandler: GoogleDriver, sheetHandler: GoogleSheets):
         self.googleHandler = googleHandler
         self.sheetHandler = sheetHandler
         self.db_uid = ""
@@ -21,24 +20,32 @@ class UserDbSheetsHandler:
     def load_db_to_google(self, UDb: UserDatabase):
         for user in UDb.database:
             print(user)
-            self.sheetHandler.append_row(self.db_uid, user.user_to_list())
+            self.sheetHandler.append_row(self.db_uid, list(user))
+
+    def upload_db_from_google(self, udb: UserDatabase = UserDatabase()):
+        for i in range(self.sheetHandler.last_row(spreadsheet_id=self.db_uid)):
+            print()
+
 
     def clear_db(self, debug=False):
-        for i in range(1, self.sheetHandler.last_row(self.db_uid)+1):
+        for i in range(1, self.sheetHandler.last_row(self.db_uid) + 1):
             self.sheetHandler.clear_row(self.db_uid, i)
             if debug:
                 print(f"Clearing row: {i}", end="...\n")
 
 
 if __name__ == "__main__":
-    g_hand = GoogleDriveHandler()
+    g_hand = GoogleDriver()
     db = UserDatabase()
     users = [User(i) for i in range(6)]
-    s_hand = GoogleSheetsHandler()
+    s_hand = GoogleSheets()
     for u in users:
         db.add_user(u)
-    testHandler = UserDbSheetsHandler(g_hand, s_hand)
+    testHandler = UdbGoogleSheetHandler(g_hand, s_hand)
     testHandler.load_db_to_google(db)
     s_hand.last_row(testHandler.db_uid)
+    res = s_hand.get_strings(testHandler.db_uid, 1, 5)
+    for item in res:
+        print(item)
     input()
     testHandler.clear_db()

@@ -6,15 +6,15 @@ from oauth2client.service_account import ServiceAccountCredentials
 from urllib.error import HTTPError
 
 
-class GoogleSheetsHandler:
+class GoogleSheets:
     Exist = False
 
     def __new__(cls, *args, **kwargs):
         """ SINGLETON """
-        if not GoogleSheetsHandler.Exist:
-            GoogleSheetsHandler.Exist = super().__new__(cls)
-            return GoogleSheetsHandler.Exist
-        return GoogleSheetsHandler.Exist
+        if not GoogleSheets.Exist:
+            GoogleSheets.Exist = super().__new__(cls)
+            return GoogleSheets.Exist
+        return GoogleSheets.Exist
 
     def __init__(self, path_to_ini: str = "../cred.ini", scopes=None):
         """Shows basic usage of the Sheets API. Print values from a sample spreadsheet"""
@@ -82,12 +82,12 @@ class GoogleSheetsHandler:
 
 
 if __name__ == "__main__":
-    from GoogleDriveHandler import GoogleDriveHandler
+    from GoogleDriver import GoogleDriver
 
-    service = GoogleDriveHandler()
+    service = GoogleDriver()
     uid = service.create("test")
     try:
-        sheetHandler = GoogleSheetsHandler()
+        sheetHandler = GoogleSheets()
         service.create_permission(uid, "haskird2@gmail.com")
         data_in = [1, 2]
         sheetHandler.append_row(uid, data_in)
