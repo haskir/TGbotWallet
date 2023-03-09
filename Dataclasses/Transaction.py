@@ -16,7 +16,7 @@ class Transaction:
             self.transaction_date = date.today().strftime("%d.%m.%Y")
 
     def __iter__(self):
-        return iter([value for key, value in self.__dict__.items() if key != "category"])
+        return iter(list(self.__dict__.values()))
 
     def __next__(self):
         return next(iter(self))

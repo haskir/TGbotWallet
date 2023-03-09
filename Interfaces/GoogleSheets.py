@@ -1,9 +1,11 @@
-from pprint import pprint
-
 import httplib2
 import apiclient
 from oauth2client.service_account import ServiceAccountCredentials
 from urllib.error import HTTPError
+
+
+def html_error_handler(func):
+    ...
 
 
 class GoogleSheets:
@@ -22,7 +24,7 @@ class GoogleSheets:
 
         self.service_inner = None
         if scopes is None:
-            scopes = ['https://www.googleapis.com/auth/spreadsheets']
+            scopes = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
         with open(path_to_ini, "r") as file:
             self.configs = dict()
             for string in file.readlines():
@@ -30,22 +32,25 @@ class GoogleSheets:
         self._CREDENTIALS_FILE = self.configs.get("account_creds")
         credentials = ServiceAccountCredentials.from_json_keyfile_name(
             self._CREDENTIALS_FILE,
-            ['https://www.googleapis.com/auth/spreadsheets',
-             'https://www.googleapis.com/auth/drive'])
+            scopes=scopes)
         httpAuth = credentials.authorize(httplib2.Http())
         self.service_inner = apiclient.discovery.build('sheets', 'v4', http=httpAuth)
 
-    def show(self, spreadsheet_id: str = None, start: int = 1, stop: int = 1):
+    def show_rows(self, spreadsheet_id: str = None, start: int = 1, stop: int = 1) -> None | list:
         if not start:
             start = 1
         if not stop:
             stop = 1
-        values = self.service_inner.spreadsheets().values().get(
+        response = self.service_inner.spreadsheets().values().get(
             spreadsheetId=spreadsheet_id,
             range=f'A{start}:Z{stop}',
             majorDimension="ROWS"
         ).execute()
-        pprint(values)
+        # [0] cause just 1 string
+        if "values" in response:
+            return response["values"]
+        else:
+            return None
 
     def append_row(self, spreadsheet_id: str, data: list, category: str = "Sheet1"):
         values = {
@@ -81,12 +86,6 @@ class GoogleSheets:
         except HTTPError as e:
             print(e)
 
-    def create_spreadsheet(self):
-        ...
-
-    def show_spreadsheets(self):
-        ...
-
 
 if __name__ == "__main__":
     from GoogleDriver import GoogleDriver
@@ -99,8 +98,10 @@ if __name__ == "__main__":
         data_in = [1, 2]
         sheetHandler.append_row(uid, data_in)
         sheetHandler.append_row(uid, data_in)
-        input("Нажми Enter для удаления первой строчки")
-        sheetHandler.clear_row(uid, 1)
+        # input("Нажми Enter для удаления первой строчки")
+        print(sheetHandler.show(uid))
+        # sheetHandler.clear_row(uid, 1)
+
         input("Нажми Enter для удаления тестовой таблички")
     finally:
         service.delete_tests()
