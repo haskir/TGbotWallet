@@ -10,7 +10,8 @@ class User(dict):
                  language_code: str = "EMPTY_VALUE",
                  email: str = "EMPTY_VALUE",
                  sheet_id: str = "EMPTY_VALUE",
-                 permission_id: str = "EMPTY_VALUE"):
+                 permission_id: str = "EMPTY_VALUE",
+                 categories: list = []):
         """ Accepts *args or list or dict"""
         if isinstance(uid, int):
             self.uid = uid
@@ -22,6 +23,7 @@ class User(dict):
             self.email = email
             self.sheet_id = sheet_id
             self.permission_id = permission_id
+            self.categories = categories or ["Еда", "Транспорт", "Жильё", "Разное"]
         elif (isinstance(uid, list) and len(User.ATTRS) != len(uid)) or (isinstance(uid, dict) and User.ATTRS != list(uid.keys())):
             raise ValueError("Not expected length in initialization")
         elif isinstance(uid, dict):
