@@ -1,6 +1,10 @@
+from aiogram.filters.state import State
+
+
 class User(dict):
     ATTRS = ["uid", "is_bot", "first_name", "last_name", "username", "language_code", "email", "sheet_id",
-             "permission_id"]
+             "permission_id", "state", "categories"]
+    DEFAULT_CATEGORIES = ["Еда", "Транспорт", "Жильё", "Разное"]
 
     def __init__(self, uid: int | list | dict = 1,
                  is_bot: bool = False,
@@ -11,7 +15,8 @@ class User(dict):
                  email: str = "EMPTY_VALUE",
                  sheet_id: str = "EMPTY_VALUE",
                  permission_id: str = "EMPTY_VALUE",
-                 categories: list = []):
+                 state: State = None,
+                 categories: list = [][:]):
         """ Accepts *args or list or dict"""
         if isinstance(uid, int):
             self.uid = uid
@@ -23,9 +28,11 @@ class User(dict):
             self.email = email
             self.sheet_id = sheet_id
             self.permission_id = permission_id
-            self.categories = categories or ["Еда", "Транспорт", "Жильё", "Разное"]
-        elif (isinstance(uid, list) and len(User.ATTRS) != len(uid)) or (isinstance(uid, dict) and User.ATTRS != list(uid.keys())):
-            raise ValueError("Not expected length in initialization")
+            self.state = state
+            self.categories = categories
+        elif (isinstance(uid, list) and len(User.ATTRS) != len(uid)) or \
+                (isinstance(uid, dict) and User.ATTRS != list(uid.keys())):
+            raise ValueError(f"Not expected length in initialization, expected {len(User.ATTRS)}, got {len(uid)}")
         elif isinstance(uid, dict):
             self.__dict__ = {key: value for key, value in uid.items()}
         elif isinstance(uid, list):
@@ -57,10 +64,10 @@ class User(dict):
 if __name__ == "__main__":
     u1 = User(1)
     test_1 = User(1)
-    test_l = User([1, 2, 3, 4, 5, 6, 7, 8, 9])
+    test_l = User([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, []])
     test_d = {'uid': 1, 'is_bot': False, 'first_name': 'EMPTY_VALUE', 'last_name': 'EMPTY_VALUE',
               'username': 'EMPTY_VALUE', 'language_code': 'EMPTY_VALUE', 'email': 'EMPTY_VALUE',
-              'sheet_id': 'EMPTY_VALUE', 'permission_id': 0}
+              'sheet_id': 'EMPTY_VALUE', 'permission_id': 0, 'state': None, 'categories': []}
     print(test_1)
     print(test_l)
     print(User(test_d))

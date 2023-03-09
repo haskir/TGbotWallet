@@ -26,7 +26,6 @@ class UdbGoogleSheetHandler:
         for i in range(self.sheetHandler.last_row(spreadsheet_id=self.db_uid)):
             print()
 
-
     def clear_db(self, debug=False):
         for i in range(1, self.sheetHandler.last_row(self.db_uid) + 1):
             self.sheetHandler.clear_row(self.db_uid, i)

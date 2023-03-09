@@ -5,7 +5,21 @@ from aiogram.fsm.context import FSMContext
 
 class FSMGRegistration(StatesGroup):
     FSMFillName = State()
+    FSMFillEmail = State()
 
 
-class FSMGNewPayment(StatesGroup):
-    ...
+class FSMDefaultStateGroup(StatesGroup):
+    FSMDefaultState = State()
+
+
+class FSMewPayment(StatesGroup):
+    FSMFillCategory = State()
+    FSMFillMarket = State()
+    FSMFillTotal = State()
+    FSMFillDescription = State()
+
+
+class FSMGetStatistic(StatesGroup):
+    FSMGetByTotal = State()
+    FSMGetByDate = State()
+    FSMGETByCategory = State()

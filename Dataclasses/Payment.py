@@ -3,7 +3,7 @@ from datetime import date as date
 
 
 @dataclasses.dataclass
-class Transaction:
+class Payment:
     uid: int | None
     category: str
     transaction_date: str | None
@@ -23,5 +23,5 @@ class Transaction:
 
 
 if __name__ == "__main__":
-    t_tran = Transaction(1, "Еда", None, "Пятёрочка", 999, "Чипсы")
+    t_tran = Payment(1, "Еда", None, "Пятёрочка", 999, "Чипсы")
     print(list(t_tran))
