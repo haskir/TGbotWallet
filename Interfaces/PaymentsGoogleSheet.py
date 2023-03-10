@@ -20,25 +20,25 @@ def _category_sort(payment: Payment, goal: list[str]) -> bool:
 
 
 class PaymentsGoogleSheet:
-    def __init__(self, sheethandler: GoogleSheets):
-        self.sheethandler = sheethandler
+    def __init__(self, sheetHandler: GoogleSheets):
+        self.sheetHandler = sheetHandler
 
     def show_all(self, sheet_uid: str) -> list[list] | None:
-        index = self.sheethandler.last_row(sheet_uid)
-        return self.sheethandler.show_rows(sheet_uid,
+        index = self.sheetHandler.last_row(sheet_uid)
+        return self.sheetHandler.show_rows(sheet_uid,
                                            start=1,
                                            stop=index)
 
     def write(self, sheet_uid: str, payment: Payment, ):
-        index = self.sheethandler.last_row(sheet_uid)
-        response = self.sheethandler.show_rows(sheet_uid,
+        index = self.sheetHandler.last_row(sheet_uid)
+        response = self.sheetHandler.show_rows(sheet_uid,
                                                start=index,
                                                stop=index)[0]
         if response is None:
             payment.uid = 1
         elif isinstance(response, list):
             payment.uid = int(response[0]) + 1
-        self.sheethandler.append_row(sheet_uid, list(payment))
+        self.sheetHandler.append_row(sheet_uid, list(payment))
 
     def sort(self, sheet_uid: str, sort_type: callable, goal) -> list:
         result = [Payment(*temp) for temp in self.show_all(sheet_uid)]
