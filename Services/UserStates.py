@@ -16,6 +16,7 @@ class FSMewPayment(StatesGroup):
     FSMFillTotal = State()
     FSMFillDescription = State()
     FSMCheck = State()
+    FSMDone = State()
 
 
 class FSMGetStatistic(StatesGroup):

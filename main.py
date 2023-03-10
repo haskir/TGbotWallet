@@ -132,9 +132,18 @@ async def new_payment(message: Message, state: FSMContext):
     await state.set_state(FSMewPayment.FSMFillCategory)
 
 
+@dp.message(StateFilter(FSMewPayment), Text(text="Отмена"))
+async def new_payment_description(message: Message, state: FSMContext):
+    await message.answer("Ну, ладно",
+                         reply_markup=menu_keyboard.as_markup())
+    await state.set_state(FSMewPayment.FSMMenuState)
+
+
 @dp.message(StateFilter(FSMewPayment.FSMFillCategory), F.text.isalpha())
 async def new_payment_category(message: Message, state: FSMContext):
-    await message.answer(text="Введите название магазина")
+    default_keyboard.add(*standart_buttons)
+    await message.answer(text="Введите название магазина",
+                         reply_markup=default_keyboard.as_markup())
     udb.get_user(message.from_user.id).state["Category"] = message.text
     await state.set_state(FSMewPayment.FSMFillMarket)
 
@@ -155,8 +164,16 @@ async def new_payment_description(message: Message, state: FSMContext):
 
 @dp.message(StateFilter(FSMewPayment.FSMCheck))
 async def new_payment_check(message: Message, state: FSMContext):
+    default_keyboard.add(*check_button)
     udb.get_user(message.from_user.id).state["Description"] = message.text
     await message.answer(text=f"Всё верно?\n" + '\n'.join(udb.get_user(message.from_user.id).state.values()),
+                         reply_markup=default_keyboard.as_markup())
+    await state.set_state(FSMewPayment.FSMDone)
+
+
+@dp.message(StateFilter(FSMewPayment.FSMDone), Text(text="Да"))
+async def new_payment_description(message: Message, state: FSMContext):
+    await message.answer("Готово!",
                          reply_markup=menu_keyboard.as_markup())
     await state.set_state(FSMewPayment.FSMMenuState)
 
