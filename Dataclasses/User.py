@@ -16,7 +16,7 @@ class User(dict):
                  email: str = "EMPTY_VALUE",
                  sheet_id: str = "EMPTY_VALUE",
                  permission_id: str = "EMPTY_VALUE",
-                 state: State = None,
+                 state: dict = None,
                  categories: list = [][:]):
         """ Accepts *args or list or dict"""
         if isinstance(uid, int | str):
@@ -30,7 +30,7 @@ class User(dict):
             self.email = email
             self.sheet_id = sheet_id
             self.permission_id = permission_id
-            self.state = state
+            self.state = state or dict()
             self.categories = categories
         elif (isinstance(uid, list) and len(User.ATTRS) != len(uid)) or \
                 (isinstance(uid, dict) and User.ATTRS != list(uid.keys())):
