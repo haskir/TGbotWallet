@@ -26,10 +26,13 @@ googleHandler = GoogleDriver(path_to_ini="cred.ini")
 sheetHandler = GoogleSheets(path_to_ini="cred.ini")
 udb_g_sheet = UdbGoogleSheetHandler(googleHandler=googleHandler, sheetHandler=sheetHandler)
 payments_handler = PaymentsGoogleSheet(sheetHandler=sheetHandler)
-keyboard_builder = ReplyKeyboardBuilder()
-
+menu_keyboard = ReplyKeyboardBuilder()
+default_keyboard = ReplyKeyboardBuilder()
+check_keyboard = ReplyKeyboardBuilder()
 googleHandler.delete_tests()
 # Списки кнопок
+check_button: list[KeyboardButton] = [KeyboardButton(text="Да")]
+
 standart_buttons: list[KeyboardButton] = [KeyboardButton(text="Отмена"),
                                           KeyboardButton(text="Назад")]
 
@@ -89,7 +92,7 @@ async def process_name_sent(message: Message, state: FSMContext):
     await state.set_state(FSMFillForm.fill_email)
 
 
-# Введено НЕ корректное имя
+# Введено Некорректное имя
 @dp.message(StateFilter(FSMFillForm.fill_name))
 async def warning_not_name(message: Message):
     await message.answer(text='То, что вы отправили не похоже на имя\n\n'
@@ -105,26 +108,57 @@ async def process_email_sent(message: Message, state: FSMContext):
     await message.answer(text=f'Спасибо! Ссылка на табличку придёт вам на почту!')
     # user.sheet_id = googleHandler.create("test")
     # user.permission_id = googleHandler.create_permission(user.sheet_id, user.email)
-    keyboard_builder.row(*menu_buttons)
+    menu_keyboard.row(*menu_buttons)
     await message.answer(text="Что будем делать дальше?",
-                         reply_markup=keyboard_builder.as_markup(),
+                         reply_markup=menu_keyboard.as_markup(),
                          resize_keyboard=True)
     await state.set_state(FSMewPayment.FSMMenuState)
 
 
-# Введён НЕ корректный email
+# Введён Некорректный email
 @dp.message(StateFilter(FSMFillForm.fill_email))
 async def warning_not_email(message: Message):
     await message.answer(text='То, что вы отправили не похоже на корректный email\n\n')
 
 
 @dp.message(StateFilter(FSMewPayment.FSMMenuState), Text(text="Новая покупка"))
-async def menu_stage(message: Message, state: FSMContext):
-    keyboard_builder.row(*standart_buttons)
-    await message.answer(text="",
-                         reply_markup=ReplyKeyboardRemove())
+async def new_payment(message: Message, state: FSMContext):
     await message.answer(text="Введите категорию траты",
-                         reply_markup=keyboard_builder.as_markup())
+                         reply_markup=ReplyKeyboardRemove())
+    udb.get_user(message.from_user.id).state = {"Category": None,
+                                                "Market": None,
+                                                "Total": None,
+                                                "Description": None}
+    await state.set_state(FSMewPayment.FSMFillCategory)
+
+
+@dp.message(StateFilter(FSMewPayment.FSMFillCategory), F.text.isalpha())
+async def new_payment_category(message: Message, state: FSMContext):
+    await message.answer(text="Введите название магазина")
+    udb.get_user(message.from_user.id).state["Category"] = message.text
+    await state.set_state(FSMewPayment.FSMFillMarket)
+
+
+@dp.message(StateFilter(FSMewPayment.FSMFillMarket), F.text.isalpha())
+async def new_payment_total(message: Message, state: FSMContext):
+    await message.answer(text="Сколько потратили?")
+    udb.get_user(message.from_user.id).state["Market"] = message.text
+    await state.set_state(FSMewPayment.FSMFillTotal)
+
+
+@dp.message(StateFilter(FSMewPayment.FSMFillTotal), F.text.isdigit())
+async def new_payment_description(message: Message, state: FSMContext):
+    await message.answer(text="Введите описание")
+    udb.get_user(message.from_user.id).state["Total"] = message.text
+    await state.set_state(FSMewPayment.FSMCheck)
+
+
+@dp.message(StateFilter(FSMewPayment.FSMCheck))
+async def new_payment_check(message: Message, state: FSMContext):
+    udb.get_user(message.from_user.id).state["Description"] = message.text
+    await message.answer(text=f"Всё верно?\n" + '\n'.join(udb.get_user(message.from_user.id).state.values()),
+                         reply_markup=menu_keyboard.as_markup())
+    await state.set_state(FSMewPayment.FSMMenuState)
 
 
 # БЕТА ФУНКЦИИ
@@ -143,9 +177,9 @@ async def get_statistic_menu(message: Message, state: FSMContext):
     await message.reply("Извини, это пока ещё недопилено")
 
 
-# @dp.message()
-# async def send_echo(message: Message):
-#     await message.reply(text='Извините, моя твоя не понимать')
+@dp.message()
+async def send_echo(message: Message):
+    await message.reply(text='Извините, моя твоя не понимать')
 
 
 if __name__ == '__main__':
