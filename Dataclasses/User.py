@@ -2,11 +2,12 @@ from aiogram.filters.state import State
 
 
 class User(dict):
-    ATTRS = ["uid", "is_bot", "first_name", "last_name", "username", "language_code", "email", "sheet_id",
+    ATTRS = ["uid", "inner_name", "is_bot", "first_name", "last_name", "username", "language_code", "email", "sheet_id",
              "permission_id", "state", "categories"]
     DEFAULT_CATEGORIES = ["Еда", "Транспорт", "Жильё", "Разное"]
 
-    def __init__(self, uid: int | list | dict = 1,
+    def __init__(self, uid: str | int | list | dict = 1,
+                 inner_name: str = "",
                  is_bot: bool = False,
                  first_name: str = "EMPTY_VALUE",
                  last_name: str = "EMPTY_VALUE",
@@ -18,8 +19,9 @@ class User(dict):
                  state: State = None,
                  categories: list = [][:]):
         """ Accepts *args or list or dict"""
-        if isinstance(uid, int):
-            self.uid = uid
+        if isinstance(uid, int | str):
+            self.uid = str(uid)
+            self.inner_name = inner_name or "EMPTY_VALUE"
             self.is_bot = is_bot
             self.first_name = first_name
             self.last_name = last_name

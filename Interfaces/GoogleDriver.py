@@ -43,7 +43,6 @@ class GoogleDriver:
         page_token = None
         try:
             while True:
-                # pylint: disable=maybe-no-member
                 response = self.service_inner.files().list(
                     fields='nextPageToken, files(id, name)',
                     pageToken=page_token).execute()
@@ -113,9 +112,4 @@ if __name__ == '__main__':
     for file in service.show_files():
         if "test" == file["name"]:
             service.delete_file(file["id"])
-    test_file_id = service.create("test")
-    print(service.show_files())
-    print(service.create_permission(test_file_id, "haskird2@gmail.com"))
-    input("\n\n")
-    service.delete_file(test_file_id)
-    print(service.show_files())
+    service.delete_tests()

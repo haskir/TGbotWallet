@@ -23,6 +23,14 @@ class UserDatabase:
         else:
             raise ValueError
 
+    def get_user(self, uid: str | int) -> None | User:
+        if isinstance(uid, int):
+            uid = str(uid)
+        for user in self.database:
+            if uid == user.uid:
+                return user
+        return None
+
     def db_to_list(self) -> list:
         return [user.user_to_dict() for user in self.database]
 
@@ -35,5 +43,3 @@ class UserDatabase:
 
     def __repr__(self):
         return f"{len(self)}: {self.database}"
-
-

@@ -1,4 +1,3 @@
-from Dataclasses import *
 from Interfaces import *
 
 
@@ -43,7 +42,7 @@ if __name__ == "__main__":
     testHandler = UdbGoogleSheetHandler(g_hand, s_hand)
     testHandler.load_db_to_google(db)
     s_hand.last_row(testHandler.db_uid)
-    res = s_hand.get_strings(testHandler.db_uid, 1, 5)
+    res = s_hand.show_rows(testHandler.db_uid, 1, 5)
     for item in res:
         print(item)
     input()
