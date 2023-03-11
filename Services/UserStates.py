@@ -9,14 +9,15 @@ class FSMFillForm(StatesGroup):
     fill_email = State()  # Состояние ожидания ввода возраста
 
 
+FSMMenuState = State()
+
+
 class FSMewPayment(StatesGroup):
-    FSMMenuState = State()
     FSMFillCategory = State()
     FSMFillMarket = State()
     FSMFillTotal = State()
     FSMFillDescription = State()
     FSMCheck = State()
-    FSMDone = State()
 
 
 class FSMGetStatistic(StatesGroup):
