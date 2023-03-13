@@ -4,6 +4,8 @@ from .imports import *
 change_self_router: Router = Router()
 
 
-@change_self_router.message(StateFilter(FSMMenuState), Text(text="Изменить e-mail"))
-async def get_statistic_menu(message: Message, state: FSMContext):
-    await message.reply("Извини, это пока ещё недопилено")
+@change_self_router.callback_query(StateFilter(FSMChangeSelf),
+                                   lambda callback: callback.data == "ChangeSelf")
+async def get_statistic_menu(callback: CallbackQuery, state: FSMContext):
+    await callback.answer("Извини, это пока ещё недопилено")
+    await state.set_state(FSMMenuState)

@@ -10,29 +10,19 @@ async def cancel(message: Message, state: FSMContext):
     await state.set_state(FSMMenuState)
 
 
-@new_payment_router.message(StateFilter(FSMMenuState), Text(text="Новая покупка"))
-async def new_payment(message: Message, state: FSMContext):
-    await message.answer(text="Введите категорию траты",
-                         reply_markup=ReplyKeyboardRemove())
-    udb.get_user(message.from_user.id).state = {"Category": None,
-                                                "Market": None,
-                                                "Total": None,
-                                                "Description": None}
-    await state.set_state(FSMewPayment.FSMFillCategory)
-
-
-@new_payment_router.message(StateFilter(FSMewPayment.FSMFillCategory), F.text.isalpha(), ~Text(text="Назад",
-                                                                                               ignore_case=True))
+@new_payment_router.message(StateFilter(FSMewPayment.FSMFillCategory), F.text.isalpha(),
+                            ~Text(text="Назад",
+                            ignore_case=True))
 async def new_payment_category(message: Message, state: FSMContext):
-    default_keyboard.add(*standart_buttons)
     await message.answer(text="Введите название магазина",
                          reply_markup=default_keyboard.as_markup())
     udb.get_user(message.from_user.id).state["Category"] = message.text
     await state.set_state(FSMewPayment.FSMFillMarket)
 
 
-@new_payment_router.message(StateFilter(FSMewPayment.FSMFillMarket), F.text.isalpha(), ~Text(text="Назад",
-                                                                                             ignore_case=True))
+@new_payment_router.message(StateFilter(FSMewPayment.FSMFillMarket), F.text.isalpha(),
+                            ~Text(text="Назад",
+                            ignore_case=True))
 async def new_payment_total(message: Message, state: FSMContext):
     await message.answer(text="Сколько потратили?")
     udb.get_user(message.from_user.id).state["Market"] = message.text
@@ -64,12 +54,13 @@ async def done(message: Message, state: FSMContext):
     await state.set_state(FSMMenuState)
 
 
-@new_payment_router.message(StateFilter(FSMewPayment.FSMFillCategory), Text(text="Назад", ignore_case=True))
-async def back1(message: Message, state: FSMContext):
+@new_payment_router.callback_query(StateFilter(FSMewPayment.FSMFillCategory),
+                                   lambda callback_data: callback_data.data == "Back")
+async def back1(callback: CallbackQuery, state: FSMContext):
     await state.set_state(FSMMenuState)
-    await message.answer(text="Что будем делать дальше?",
-                         reply_markup=menu_keyboard.as_markup(),
-                         resize_keyboard=True)
+    await callback.answer(text="Что будем делать дальше?",
+                          reply_markup=ReplyKeyboardRemove(),
+                          resize_keyboard=True)
 
 
 @new_payment_router.message(StateFilter(FSMewPayment.FSMFillMarket), Text(text="Назад", ignore_case=True))

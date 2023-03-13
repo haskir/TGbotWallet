@@ -26,5 +26,9 @@ class FSMGetStatistic(StatesGroup):
     FSMGETByCategory = State()
 
 
-class FSMChangeEmail(StatesGroup):
+class FSMChangeSelf(StatesGroup):
+    ...
+
+
+class FSMNewEnrollment(StatesGroup):
     ...
