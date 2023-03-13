@@ -21,14 +21,25 @@ class FSMewPayment(StatesGroup):
 
 
 class FSMGetStatistic(StatesGroup):
+    FSMGetStatisticMenu = State()
     FSMGetByTotal = State()
     FSMGetByDate = State()
-    FSMGETByCategory = State()
+    FSMGetByCategory = State()
+
+    class FSMDeletePayments(StatesGroup):
+        FSMDeletePaymentsMenu = State()
+        FSMDeletePaymentsByUid = State()
 
 
 class FSMChangeSelf(StatesGroup):
-    ...
+    FSMChangeSelfMenu = State()
+    FSMShowInfo = State()
+    FSMChangeEmail = State()
+    FSMChangeName = State()
 
 
-class FSMNewEnrollment(StatesGroup):
-    ...
+class FSMEnrollment(StatesGroup):
+    FSMCEnrollmentMenu = State()
+    FSMEnrollmentShow = State()
+    FSMEnrollmentNew = State()
+    FSMCEnrollmentDelete = State()

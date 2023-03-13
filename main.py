@@ -13,11 +13,11 @@ dp: Dispatcher = Dispatcher(bot=bot, storage=storage)
 dp.include_router(change_self_router)
 dp.include_router(get_statistic_router)
 dp.include_router(menu_router)
-dp.include_router(new_enrollment_router)
-dp.include_router(new_payment_router)
+dp.include_router(enrollment_router)
+dp.include_router(payment_router)
 dp.include_router(registration_router)
 
 if __name__ == '__main__':
-    dp.run_polling(bot)
+    dp.run_polling(bot, )
     ...
 # Запускаем бота
