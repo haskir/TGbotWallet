@@ -12,6 +12,8 @@ enrollment_states: dict = {
 
 @enrollment_router.callback_query(StateFilter(FSMEnrollment.FSMCEnrollmentMenu))
 async def enrollment_menu(callback: CallbackQuery, state: FSMContext):
+    if callback.data not in enrollment_states:
+        return
     await callback.message.answer(text=enrollment_states.get(callback.data)[1],
                                   reply_markup=default_keyboard.as_markup())
     await state.set_state(enrollment_states.get(callback.data)[0])
