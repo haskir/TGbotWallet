@@ -20,3 +20,7 @@ def email_validation(email: str | Message) -> bool:
         return True
     else:
         return False
+
+
+def show_user(user: User):
+    return str(user.inner_name + "\n" + user.email)

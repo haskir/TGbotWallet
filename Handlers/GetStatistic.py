@@ -11,6 +11,9 @@ statistic_states: dict = {
 
 @get_statistic_router.callback_query(StateFilter(FSMGetStatistic.FSMGetStatisticMenu))
 async def statistic_menu(callback: CallbackQuery, state: FSMContext):
+    if callback.data not in statistic_states:
+        return
+
     await callback.message.answer(text=statistic_states.get(callback.data)[1],
                                   reply_markup=default_keyboard.as_markup())
     await state.set_state(statistic_states.get(callback.data)[0])

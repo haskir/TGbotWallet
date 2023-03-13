@@ -1,4 +1,5 @@
 from .imports import *
+
 menu_router: Router = Router()
 
 states = {
@@ -22,8 +23,13 @@ async def go_from_menu_to(callback: CallbackQuery, state: FSMContext):
 
 
 @menu_router.message(StateFilter(default_state, FSMMenuState), Text(text="Отмена", ignore_case=True))
-async def process_cancel_command(message: Message):
+async def cancel_command(message: Message):
     await message.answer(text='Отменять нечего')
+
+
+@menu_router.message(StateFilter(default_state, FSMMenuState), Text(text="Назад", ignore_case=True))
+async def back_command(message: Message):
+    await message.answer(text='Некуда отступать')
 
 
 @menu_router.message(~StateFilter(default_state, FSMMenuState), Text(text="Отмена", ignore_case=True))
@@ -36,6 +42,15 @@ async def process_cancel_command_state(message: Message, state: FSMContext):
                              reply_markup=menu_keyboard.as_markup())
         await state.set_state(FSMMenuState)
     else:
-        await message.answer("Вы пытаетесь всё сломать?",
+        await message.answer("Что мы умеем:",
                              reply_markup=menu_keyboard.as_markup(one_time_keyboard=True))
         await state.set_state(FSMMenuState)
+
+
+@menu_router.callback_query(lambda callback: callback.data == "BackToMainMenu")
+async def back_from_any(callback: CallbackQuery, state: FSMContext):
+    await callback.message.answer(text="Возвращаю",
+                                  reply_markup=ReplyKeyboardRemove())
+    await callback.message.answer(text="Что будем делать?",
+                                  reply_markup=menu_keyboard.as_markup())
+    await state.set_state(FSMMenuState)
