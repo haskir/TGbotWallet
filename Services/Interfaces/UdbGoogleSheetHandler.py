@@ -1,4 +1,4 @@
-from Interfaces import *
+from Services.Interfaces import *
 
 
 class UdbGoogleSheetHandler:

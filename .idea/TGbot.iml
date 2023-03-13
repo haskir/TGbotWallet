@@ -7,12 +7,4 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
-  <component name="PyNamespacePackagesService">
-    <option name="namespacePackageFolders">
-      <list>
-        <option value="$MODULE_DIR$/Dataclasses" />
-        <option value="$MODULE_DIR$/Interfaces" />
-      </list>
-    </option>
-  </component>
 </module>

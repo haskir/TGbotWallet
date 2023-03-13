@@ -16,7 +16,7 @@ class User(dict):
                  email: str = "EMPTY_VALUE",
                  sheet_id: str = "EMPTY_VALUE",
                  permission_id: str = "EMPTY_VALUE",
-                 state: dict = None,
+                 state: State = None,
                  categories: list = [][:]):
         """ Accepts *args or list or dict"""
         if isinstance(uid, int | str):

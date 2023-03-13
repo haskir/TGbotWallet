@@ -1,6 +1,5 @@
 from .imports import *
 
-
 registration_router: Router = Router()
 
 
@@ -53,6 +52,10 @@ async def process_email_sent(message: Message, state: FSMContext):
     await message.answer(text="Что будем делать дальше?",
                          reply_markup=menu_keyboard.as_markup(),
                          resize_keyboard=True)
+    udb.get_user(message.from_user.id).state = {"Category": None,
+                                                "Market": None,
+                                                "Total": None,
+                                                "Description": None}
     await state.set_state(FSMMenuState)
 
 

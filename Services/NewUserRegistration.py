@@ -1,5 +1,5 @@
-from Interfaces.GoogleDriver import GoogleDriver
-from Dataclasses.User import User
+from Services.Interfaces.GoogleDriver import GoogleDriver
+from Services.Dataclasses.User import User
 from aiogram.types import Message
 
 
