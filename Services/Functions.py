@@ -1,6 +1,7 @@
 from Handlers.imports import *
-from aiogram.types import Message
+from aiogram.types import Message, CallbackQuery
 from Services.Dataclasses import *
+from Services.Interfaces.PaymentsGoogleSheet import PaymentsGoogleSheet
 
 
 def create_sheet_for_new_user(user: User) -> str:
@@ -31,3 +32,12 @@ def add_payment(user_uid: str | int, user_database: UserDatabase, payments_handl
         user_uid = str(user_uid)
     user = user_database.get_user(user_uid)
     payments_handler.write(user.sheet_id, Payment(None, None, *user.state.values()))
+
+
+async def back_to_menu(callback: CallbackQuery, state: FSMContext) -> bool:
+    if "BackToMainMenu" in callback.data:
+        await callback.message.answer(text="Возвращаюсь",
+                                      reply_markup=menu_keyboard.as_markup())
+        await state.set_state(FSMMenuState)
+        return True
+    return False

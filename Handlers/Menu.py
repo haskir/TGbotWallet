@@ -19,7 +19,8 @@ async def go_from_menu_to(callback: CallbackQuery, state: FSMContext):
     if callback.data in states.keys():
         await state.set_state(states.get(callback.data)[0])
         await callback.message.answer(states.get(callback.data)[1],
-                                      reply_markup=states.get(callback.data)[2].as_markup(one_time_keyboard=True))
+                                      reply_markup=states.get(callback.data)[2].as_markup(one_time_keyboard=True,
+                                                                                          resize_keyboard=True))
 
 
 @menu_router.message(StateFilter(default_state, FSMMenuState), Text(text="Отмена", ignore_case=True))

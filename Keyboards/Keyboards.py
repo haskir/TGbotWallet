@@ -28,9 +28,11 @@ enrollment_buttons: list[InlineKeyboardButton] = [
 ]
 
 statistic_buttons: list[InlineKeyboardButton] = [
+    InlineKeyboardButton(text="Показать всё", callback_data="ShowEverything"),
     InlineKeyboardButton(text="По датам", callback_data="StatisticByDate"),
     InlineKeyboardButton(text="По категории", callback_data="StatisticByCategory"),
     InlineKeyboardButton(text="По сумме", callback_data="StatisticByTotal"),
+    InlineKeyboardButton(text="Удалить покупку", callback_data="DeletePaymentByUid"),
     InlineKeyboardButton(text="Назад", callback_data="BackToMainMenu"),
 ]
 
@@ -60,7 +62,7 @@ categories_keyboard = InlineKeyboardBuilder()
 
 
 default_keyboard.row(*standart_buttons)
-[statistic_keyboard.add(button) for button in statistic_buttons]
+[statistic_keyboard.row(button) for button in statistic_buttons]
 [enrollment_keyboard.add(button) for button in enrollment_buttons]
 change_self_keyboard.add(*change_self_buttons)
 check_keyboard.add(*standart_buttons, check_button)
