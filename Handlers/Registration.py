@@ -18,7 +18,8 @@ async def process_start_command(message: Message, state: FSMContext):
                                                 "Total": None,
                                                 "Description": None}
     udb.get_user(message.from_user.id).inner_name = "tester"
-    # await message.answer(text="Привет, этот бот - твой личный кошелёк\n\nЧтобы начать нажми на /fillform")
+    udb.get_user(message.from_user.id).sheet_id = "1cbPYocbpmCPqLB-oQByNv1sv9aQHl5lNrjbruRfzF_A"
+    # await message.answer(text="Привет, этот бот - твой личный кошелёк\n\nЧтобы начать введи своё имя")
     [menu_keyboard.row(button) for button in menu_buttons if button not in menu_keyboard.buttons]
     await message.answer(text=f"Главное меню",
                          reply_markup=menu_keyboard.as_markup())

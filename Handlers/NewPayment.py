@@ -1,4 +1,5 @@
 from .imports import *
+from Services.Functions import *
 
 payment_router: Router = Router()
 
@@ -59,6 +60,7 @@ async def new_payment_check(message: Message, state: FSMContext):
 
 @payment_router.message(StateFilter(FSMewPayment.FSMCheck), Text(text="Да"))
 async def done(message: Message, state: FSMContext):
+    add_payment(message.from_user.id, udb, payments_handler)
     await message.answer(text=payment_states.get("MainMenu")[1],
                          reply_markup=ReplyKeyboardRemove())
     await message.answer("Что будем делать дальше?",

@@ -1,5 +1,5 @@
 from .imports import *
-from Services.NewUserRegistration import email_validation, show_user
+from Services.Functions import *
 
 change_self_router: Router = Router()
 

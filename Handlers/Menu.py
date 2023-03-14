@@ -47,7 +47,7 @@ async def process_cancel_command_state(message: Message, state: FSMContext):
         await state.set_state(FSMMenuState)
 
 
-@menu_router.callback_query(lambda callback: callback.data == "BackToMainMenu")
+@menu_router.callback_query(lambda callback: "BackToMainMenu" in callback.data)
 async def back_from_any(callback: CallbackQuery, state: FSMContext):
     await callback.message.answer(text="Возвращаю",
                                   reply_markup=ReplyKeyboardRemove())
