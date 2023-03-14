@@ -22,13 +22,11 @@ class FSMewPayment(StatesGroup):
 
 class FSMGetStatistic(StatesGroup):
     FSMGetStatisticMenu = State()
+    FSMGetAll = State()
     FSMGetByTotal = State()
     FSMGetByDate = State()
     FSMGetByCategory = State()
-
-    class FSMDeletePayments(StatesGroup):
-        FSMDeletePaymentsMenu = State()
-        FSMDeletePaymentsByUid = State()
+    FSMDeletePaymentsByUid = State()
 
 
 class FSMChangeSelf(StatesGroup):
