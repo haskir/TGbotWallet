@@ -41,12 +41,22 @@ change_self_buttons: list[InlineKeyboardButton] = [
     InlineKeyboardButton(text="Назад", callback_data="BackToMainMenu"),
 ]
 
+default_categories: list[InlineKeyboardButton] = [
+    InlineKeyboardButton(text="Еда", callback_data="FoodCategory"),
+    InlineKeyboardButton(text="Транспорт", callback_data="TransportCategory"),
+    InlineKeyboardButton(text="Жильё", callback_data="LivingCategory"),
+    InlineKeyboardButton(text="Одежда", callback_data="ClothesCategory"),
+    InlineKeyboardButton(text="Электроника", callback_data="ElectroCategory"),
+    InlineKeyboardButton(text="Прочее", callback_data="OtherCategory"),
+]
+
 menu_keyboard = InlineKeyboardBuilder()
 statistic_keyboard = InlineKeyboardBuilder()
 enrollment_keyboard = InlineKeyboardBuilder()
 change_self_keyboard = InlineKeyboardBuilder()
 default_keyboard = ReplyKeyboardBuilder()
 check_keyboard = ReplyKeyboardBuilder()
+categories_keyboard = InlineKeyboardBuilder()
 
 
 default_keyboard.row(*standart_buttons)
@@ -54,3 +64,4 @@ default_keyboard.row(*standart_buttons)
 [enrollment_keyboard.add(button) for button in enrollment_buttons]
 change_self_keyboard.add(*change_self_buttons)
 check_keyboard.add(*standart_buttons, check_button)
+categories_keyboard.add(*default_categories)

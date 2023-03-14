@@ -3,7 +3,7 @@ from aiogram.filters.state import State
 
 class User(dict):
     ATTRS = ["uid", "inner_name", "is_bot", "first_name", "last_name", "username", "language_code", "email", "sheet_id",
-             "permission_id", "state", "categories"]
+             "permission_id", "state"]
     DEFAULT_CATEGORIES = ["Еда", "Транспорт", "Жильё", "Разное"]
 
     def __init__(self, uid: str | int | list | dict = 1,
@@ -16,8 +16,7 @@ class User(dict):
                  email: str = "EMPTY_VALUE",
                  sheet_id: str = "EMPTY_VALUE",
                  permission_id: str = "EMPTY_VALUE",
-                 state: State = None,
-                 categories: list = [][:]):
+                 state: State = None):
         """ Accepts *args or list or dict"""
         if isinstance(uid, int | str):
             self.uid = str(uid)
@@ -31,7 +30,6 @@ class User(dict):
             self.sheet_id = sheet_id
             self.permission_id = permission_id
             self.state = state or dict()
-            self.categories = categories
         elif (isinstance(uid, list) and len(User.ATTRS) != len(uid)) or \
                 (isinstance(uid, dict) and User.ATTRS != list(uid.keys())):
             raise ValueError(f"Not expected length in initialization, expected {len(User.ATTRS)}, got {len(uid)}")

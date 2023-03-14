@@ -74,6 +74,29 @@ class GoogleSheets:
         except HTTPError as e:
             print(e)
 
+    def delete_row(self, spreadsheet_id: str, start: int, end: int):
+        body = {
+            "requests": [
+                {
+                    "deleteDimension": {
+                        "range": {
+                            "sheetId": 0,
+                            "dimension": "ROWS",
+                            "startIndex": start,
+                            "endIndex": end
+                        }
+                    }
+                }
+            ]
+        }
+        try:
+            self.service_inner.spreadsheets().batchUpdate(
+                spreadsheetId=spreadsheet_id,
+                body=body
+            ).execute()
+        except HTTPError as e:
+            print(e)
+
     def last_row(self, spreadsheet_id: str, category: str = "Sheet1!") -> int:
         try:
             result = self.service_inner.spreadsheets().values().get(

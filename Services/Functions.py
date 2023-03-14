@@ -1,6 +1,6 @@
-from Services.Interfaces.GoogleDriver import GoogleDriver
-from Services.Dataclasses.User import User
+from Handlers.imports import *
 from aiogram.types import Message
+from Services.Dataclasses import *
 
 
 def create_sheet_for_new_user(user: User) -> str:
@@ -23,4 +23,11 @@ def email_validation(email: str | Message) -> bool:
 
 
 def show_user(user: User):
-    return str(user.inner_name + "\n" + user.email)
+    return "\n".join(map(str, [user.uid, user.inner_name, user.email]))
+
+
+def add_payment(user_uid: str | int, user_database: UserDatabase, payments_handler: PaymentsGoogleSheet):
+    if isinstance(user_uid, int):
+        user_uid = str(user_uid)
+    user = user_database.get_user(user_uid)
+    payments_handler.write(user.sheet_id, Payment(None, None, *user.state.values()))
