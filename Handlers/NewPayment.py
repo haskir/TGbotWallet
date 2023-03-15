@@ -4,7 +4,7 @@ from Services.Functions import *
 payment_router: Router = Router()
 
 payment_states: dict = {
-    "NewPaymentCategory": [FSMewPayment.FSMFillCategory, "Введите категорию траты"],
+    "NewPaymentCategory": [FSMewPayment.FSMFillCategory, "Выберите категорию траты"],
     "NewPaymentMarket": [FSMewPayment.FSMFillMarket, "Введите название магазина"],
     "NewPaymentTotal": [FSMewPayment.FSMFillTotal, "Сколько потратили?"],
     "NewPaymentDescription": [FSMewPayment.FSMFillDescription, "Введите описание"],
@@ -21,13 +21,11 @@ async def cancel(message: Message, state: FSMContext):
     await state.set_state(FSMMenuState)
 
 
-@payment_router.message(StateFilter(FSMewPayment.FSMFillCategory), F.text.isalpha(),
-                        ~Text(text="Назад",
-                              ignore_case=True))
-async def new_payment_category(message: Message, state: FSMContext):
-    await message.answer(text=payment_states.get("NewPaymentMarket")[1],
-                         reply_markup=default_keyboard.as_markup())
-    udb.get_user(message.from_user.id).state["Category"] = message.text
+@payment_router.callback_query(StateFilter(FSMewPayment.FSMFillCategory))
+async def new_payment_category(callback: CallbackQuery, state: FSMContext):
+    await callback.message.answer(text=payment_states.get("NewPaymentMarket")[1],
+                                  reply_markup=default_keyboard.as_markup())
+    udb.get_user(callback.from_user.id).state["Category"] = callback.data
     await state.set_state(FSMewPayment.FSMFillMarket)
 
 

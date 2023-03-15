@@ -3,7 +3,7 @@ from .imports import *
 menu_router: Router = Router()
 
 states = {
-    "NewPayment": [FSMewPayment.FSMFillCategory, "Введите категорию траты", default_keyboard],
+    "NewPayment": [FSMewPayment.FSMFillCategory, "Введите категорию траты", categories_keyboard],
     "NewEnrollment": [FSMEnrollment.FSMCEnrollmentMenu, "Вот, что мы можем сделать:", enrollment_keyboard],
     "GetStatistic": [FSMGetStatistic.FSMGetStatisticMenu, "Укажите нужный вам фильтр", statistic_keyboard],
     "ChangeSelf": [FSMChangeSelf.FSMChangeSelfMenu, "Профиль", change_self_keyboard]

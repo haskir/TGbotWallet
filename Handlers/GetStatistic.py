@@ -5,7 +5,7 @@ get_statistic_router: Router = Router()
 statistic_states: dict = {
     "ShowEverything": [FSMGetStatistic.FSMGetStatisticMenu, "Что теперь?"],
     "StatisticByDate": [FSMGetStatistic.FSMGetStatisticMenu, "Я ещё не умею сортировать по дате"],
-    "StatisticByCategory": [FSMGetStatistic.FSMGetStatisticMenu, "Я ещё не умею сортировать по категории"],
+    "StatisticByCategory": [FSMGetStatistic.FSMChoosingCategory, "Сортировка по категории", categories_keyboard],
     "StatisticByTotal": [FSMGetStatistic.FSMGetStatisticMenu, "Я ещё не научился сортировать по сумме"],
     "DeletePaymentByUid": [FSMGetStatistic.FSMDeletePaymentsByUid, "Введите uid покупки"]
 }
@@ -17,8 +17,13 @@ async def statistic_menu(callback: CallbackQuery, state: FSMContext):
         return
     if "ShowEverything" in callback.data:
         await show_all_payments(callback, state)
+
+    temp_keyboard = default_keyboard \
+        if len(statistic_states.get(callback.data)) < 3 \
+        else statistic_states.get(callback.data)[2]
+
     await callback.message.answer(text=statistic_states.get(callback.data)[1],
-                                  reply_markup=default_keyboard.as_markup())
+                                  reply_markup=temp_keyboard.as_markup())
     await state.set_state(statistic_states.get(callback.data)[0])
 
 
@@ -52,8 +57,16 @@ async def statistic_by_date(callback: CallbackQuery, state: FSMContext):
     await state.set_state(FSMGetStatistic.FSMGetStatisticMenu)
 
 
-@get_statistic_router.callback_query(StateFilter(FSMGetStatistic.FSMGetByCategory))
+@get_statistic_router.callback_query(StateFilter(FSMGetStatistic.FSMChoosingCategory))
 async def statistic_by_category(callback: CallbackQuery, state: FSMContext):
+    result = show_payments(
+        user=callback.from_user.id,
+        user_database=udb,
+        payments_handler=payments_handler,
+        sort=[payments_handler.sort_category, callback.data]
+    )
+    await callback.message.answer(text=f"Вот, что я смог найти\n{result}\nЧто дальше?",
+                                  reply_markup=statistic_keyboard.as_markup())
     await state.set_state(FSMGetStatistic.FSMGetStatisticMenu)
 
 
