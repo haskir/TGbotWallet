@@ -34,10 +34,17 @@ def add_payment(user_uid: str | int, user_database: UserDatabase, payments_handl
     payments_handler.write(user.sheet_id, Payment(None, None, *user.state.values()))
 
 
-async def back_to_menu(callback: CallbackQuery, state: FSMContext) -> bool:
-    if "BackToMainMenu" in callback.data:
-        await callback.message.answer(text="Возвращаюсь",
-                                      reply_markup=menu_keyboard.as_markup())
-        await state.set_state(FSMMenuState)
-        return True
-    return False
+def show_payments(user: User | str | int, user_database: UserDatabase, payments_handler: PaymentsGoogleSheet) -> str:
+    sheet_id = user_database.get_user(user).sheet_id if isinstance(user, str | int) else user.sheet_id
+    temp = payments_handler.show_all(sheet_id)
+    if temp:
+        result = [Payment(*string) for string in temp]
+    return "\n".join(str(payment) for payment in result) if temp else "Пока что пусто"
+
+
+def delete_payment(user: User | str | int,
+                   user_database: UserDatabase,
+                   payments_handler: PaymentsGoogleSheet,
+                   payment: str | int) -> bool:
+    sheet_id = user_database.get_user(user).sheet_id if isinstance(user, str | int) else user.sheet_id
+    return payments_handler.delete_payment(sheet_id, payment)

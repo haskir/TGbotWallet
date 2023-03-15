@@ -17,6 +17,18 @@ dp.include_router(enrollment_router)
 dp.include_router(payment_router)
 dp.include_router(registration_router)
 
+
+@dp.callback_query(~StateFilter(default_state),
+                   lambda callback: "BackToMainMenu" in callback.data)
+async def back_to_menu(callback: CallbackQuery, state: FSMContext):
+    await callback.message.answer(text="Возвращаюсь",
+                                  reply_markup=ReplyKeyboardRemove())
+    await callback.message.answer(text="Главное меню",
+                                  reply_markup=menu_keyboard.as_markup())
+
+    await state.set_state(FSMMenuState)
+
+
 if __name__ == '__main__':
     dp.run_polling(bot, )
     ...

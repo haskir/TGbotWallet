@@ -22,7 +22,7 @@ class Payment:
         return next(iter(self))
 
     def __repr__(self):
-        return "Transaction - " + " ".join(str(value) for value in self.__dict__.values())
+        return "   ".join(str(value) for value in self.__dict__.values())
 
 
 if __name__ == "__main__":
