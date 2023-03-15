@@ -34,12 +34,21 @@ def add_payment(user_uid: str | int, user_database: UserDatabase, payments_handl
     payments_handler.write(user.sheet_id, Payment(None, None, *user.state.values()))
 
 
-def show_payments(user: User | str | int, user_database: UserDatabase, payments_handler: PaymentsGoogleSheet) -> str:
+def show_payments(user: User | str | int,
+                  user_database: UserDatabase,
+                  payments_handler: PaymentsGoogleSheet,
+                  sort: None | list = None) -> str:
+
     sheet_id = user_database.get_user(user).sheet_id if isinstance(user, str | int) else user.sheet_id
-    temp = payments_handler.show_all(sheet_id)
-    if temp:
-        result = [Payment(*string) for string in temp]
-    return "\n".join(str(payment) for payment in result) if temp else "Пока что пусто"
+    all_payments = payments_handler.show_all(sheet_id)
+    if sort is not None:
+        print(f"{sort=}\n{all_payments=}")
+        all_payments = sort[0](all_payments[:], sort[1])
+    if all_payments:
+        result = [Payment(*string) for string in all_payments]
+        return "\n".join(str(payment) for payment in result)
+    else:
+        return"Пока что пусто\n"
 
 
 def delete_payment(user: User | str | int,

@@ -15,8 +15,8 @@ def _total_sort(payment: Payment, start: str, stop: str) -> bool:
     return int(start) <= total <= int(stop)
 
 
-def _category_sort(payment: Payment, goal: list[str]) -> bool:
-    return payment.category in goal
+def _category_sort(category: str, goal: list[str]) -> bool:
+    return category in goal
 
 
 class PaymentsGoogleSheet:
@@ -61,9 +61,10 @@ class PaymentsGoogleSheet:
         result = [Payment(*temp) for temp in self.show_all(sheet_uid)]
         return [tran for tran in result if sort_type(tran, goal)]
 
-    def sort_category(self, sheet_uid, goal_category: list[str]) -> list:
-        result = [Payment(*temp) for temp in self.show_all(sheet_uid)]
-        return [payment for payment in result if _category_sort(payment, goal_category)]
+    @staticmethod
+    def sort_category(payments: list[list], goal_category: list[str] | str) -> list[list]:
+        goal_category = [goal_category] if isinstance(goal_category, str) else goal_category
+        return [payment for payment in payments if _category_sort(payment[2], goal_category)]
 
     @staticmethod
     def summa_payments(payments: list[Payment]) -> int | float:

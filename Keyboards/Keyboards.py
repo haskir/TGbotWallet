@@ -20,14 +20,14 @@ menu_buttons: list[InlineKeyboardButton] = [
     InlineKeyboardButton(text="Профиль", callback_data="ChangeSelf"),
 ]
 
-enrollment_buttons: list[InlineKeyboardButton] = [
+__enrollment_buttons: list[InlineKeyboardButton] = [
     InlineKeyboardButton(text="Показать историю", callback_data="EnrollmentShow"),
     InlineKeyboardButton(text="Новое пополнение", callback_data="EnrollmentNew"),
     InlineKeyboardButton(text="Удалить пополнение", callback_data="EnrollmentDelete"),
     InlineKeyboardButton(text="Назад", callback_data="BackToMainMenu"),
 ]
 
-statistic_buttons: list[InlineKeyboardButton] = [
+__statistic_buttons: list[InlineKeyboardButton] = [
     InlineKeyboardButton(text="Показать всё", callback_data="ShowEverything"),
     InlineKeyboardButton(text="По датам", callback_data="StatisticByDate"),
     InlineKeyboardButton(text="По категории", callback_data="StatisticByCategory"),
@@ -36,20 +36,20 @@ statistic_buttons: list[InlineKeyboardButton] = [
     InlineKeyboardButton(text="Назад", callback_data="BackToMainMenu"),
 ]
 
-change_self_buttons: list[InlineKeyboardButton] = [
+__change_self_buttons: list[InlineKeyboardButton] = [
     InlineKeyboardButton(text="Информация", callback_data="ChangeSelfInfo"),
     InlineKeyboardButton(text="Изменить имя", callback_data="ChangeSelfName"),
     InlineKeyboardButton(text="Изменить адрес", callback_data="ChangeSelfEmail"),
     InlineKeyboardButton(text="Назад", callback_data="BackToMainMenu"),
 ]
 
-default_categories: list[InlineKeyboardButton] = [
-    InlineKeyboardButton(text="Еда", callback_data="FoodCategory"),
-    InlineKeyboardButton(text="Транспорт", callback_data="TransportCategory"),
-    InlineKeyboardButton(text="Жильё", callback_data="LivingCategory"),
-    InlineKeyboardButton(text="Одежда", callback_data="ClothesCategory"),
-    InlineKeyboardButton(text="Электроника", callback_data="ElectroCategory"),
-    InlineKeyboardButton(text="Прочее", callback_data="OtherCategory"),
+__default_categories: list[InlineKeyboardButton] = [
+    InlineKeyboardButton(text="Еда", callback_data="Еда"),
+    InlineKeyboardButton(text="Транспорт", callback_data="Транспорт"),
+    InlineKeyboardButton(text="Жильё", callback_data="Жильё"),
+    InlineKeyboardButton(text="Одежда", callback_data="Одежда"),
+    InlineKeyboardButton(text="Электроника", callback_data="Электроника"),
+    InlineKeyboardButton(text="Прочее", callback_data="Прочее"),
 ]
 
 menu_keyboard = InlineKeyboardBuilder()
@@ -62,8 +62,9 @@ categories_keyboard = InlineKeyboardBuilder()
 
 
 default_keyboard.row(*standart_buttons)
-[statistic_keyboard.row(button) for button in statistic_buttons]
-[enrollment_keyboard.add(button) for button in enrollment_buttons]
-change_self_keyboard.add(*change_self_buttons)
+[statistic_keyboard.row(button) for button in __statistic_buttons]
+[enrollment_keyboard.add(button) for button in __enrollment_buttons]
+change_self_keyboard.add(*__change_self_buttons)
 check_keyboard.add(*standart_buttons, check_button)
-categories_keyboard.add(*default_categories)
+categories_keyboard.row(*__default_categories[:3])
+categories_keyboard.row(*__default_categories[3:])

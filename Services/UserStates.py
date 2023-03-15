@@ -26,6 +26,7 @@ class FSMGetStatistic(StatesGroup):
     FSMGetByTotal = State()
     FSMGetByDate = State()
     FSMGetByCategory = State()
+    FSMChoosingCategory = State()
     FSMDeletePaymentsByUid = State()
 
 
