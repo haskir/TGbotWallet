@@ -10,7 +10,7 @@ payment_states: dict = {
     "NewPaymentDescription": [FSMewPayment.FSMFillDescription, "Введите описание"],
     "NewPaymentCheck": [FSMewPayment.FSMCheck, "Всё верно?"],
     "MainMenu": [FSMMenuState, "Готово!"],
-    "Cancel": [FSMewPayment.FSMFillCategory, "Отбой была команда!"],
+    "Cancel": [FSMewPayment.FSMFillCategory, "Ну, назад так назад"],
 }
 
 
@@ -60,11 +60,11 @@ async def new_payment_check(message: Message, state: FSMContext):
 
 @payment_router.message(StateFilter(FSMewPayment.FSMCheck), Text(text="Да"))
 async def done(message: Message, state: FSMContext):
-    add_payment(message.from_user.id, udb, payments_handler)
     await message.answer(text=payment_states.get("MainMenu")[1],
                          reply_markup=ReplyKeyboardRemove())
     await message.answer("Что будем делать дальше?",
                          reply_markup=menu_keyboard.as_markup())
+    add_payment(message.from_user.id, udb, payments_handler)
     await state.set_state(FSMMenuState)
 
 
@@ -73,7 +73,7 @@ async def back1(message: Message, state: FSMContext):
     await state.set_state(FSMMenuState)
     await message.answer(text=payment_states.get("Cancel")[1],
                          reply_markup=ReplyKeyboardRemove())
-    await message.answer(text="Вот, что я умею:",
+    await message.answer(text="Главное меню",
                          reply_markup=menu_keyboard.as_markup())
 
 

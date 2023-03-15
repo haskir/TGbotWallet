@@ -29,7 +29,7 @@ async def change_self_menu(callback: CallbackQuery, state: FSMContext):
                             lambda email: email_validation(email))
 async def change_self_email_correct(message: Message, state: FSMContext):
     udb.get_user(message.from_user.id).email = message.text
-    await message.answer(text=f"Изменено: \n {show_user(udb.get_user(message.from_user.id))}",
+    await message.answer(text=f"Изменено: \n{show_user(udb.get_user(message.from_user.id))}",
                          reply_markup=change_self_keyboard.as_markup())
     await state.set_state(FSMChangeSelf.FSMChangeSelfMenu)
 
