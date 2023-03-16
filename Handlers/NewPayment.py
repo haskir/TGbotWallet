@@ -22,7 +22,8 @@ async def cancel(message: Message, state: FSMContext):
     await state.set_state(FSMMenuState)
 
 
-@payment_router.callback_query(StateFilter(FSMewPayment.FSMFillCategory))
+@payment_router.callback_query(StateFilter(FSMewPayment.FSMFillCategory),
+                               lambda callback: callback.data in default_categories)
 async def new_payment_category(callback: CallbackQuery, state: FSMContext):
     await callback.message.answer(text=payment_states.get("NewPaymentMarket")[1],
                                   reply_markup=default_keyboard.as_markup())

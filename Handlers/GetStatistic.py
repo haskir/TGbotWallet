@@ -58,7 +58,8 @@ async def statistic_by_date(callback: CallbackQuery, state: FSMContext):
     await state.set_state(FSMGetStatistic.FSMGetStatisticMenu)
 
 
-@get_statistic_router.callback_query(StateFilter(FSMGetStatistic.FSMChoosingCategory))
+@get_statistic_router.callback_query(StateFilter(FSMGetStatistic.FSMChoosingCategory),
+                                     lambda callback: callback.data in default_categories)
 async def statistic_by_category(callback: CallbackQuery, state: FSMContext):
     result = show_payments(
         user=callback.from_user.id,
@@ -86,7 +87,7 @@ async def statistic_by_total_correct(message: Message, state: FSMContext):
 
 
 @get_statistic_router.message(StateFilter(FSMGetStatistic.FSMGetByTotal))
-async def statistic_by_total_correct(message: Message, state: FSMContext):
+async def statistic_by_total_incorrect(message: Message, state: FSMContext):
     await message.answer(text="Моя твоя не понимать, повтори")
     await state.set_state(FSMGetStatistic.FSMGetByTotal)
 

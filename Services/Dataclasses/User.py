@@ -2,34 +2,39 @@ from aiogram.filters.state import State
 
 
 class User(dict):
-    ATTRS = ["uid", "inner_name", "is_bot", "first_name", "last_name", "username", "language_code", "email", "sheet_id",
-             "permission_id", "state"]
-    DEFAULT_CATEGORIES = ["Еда", "Транспорт", "Жильё", "Разное"]
+    ATTRS = ["uid",
+             "inner_name",
+             "first_name",
+             "last_name",
+             "username",
+             "language_code",
+             "email",
+             "sheet_id",
+             "permission_id",
+             "state"]
 
-    def __init__(self, uid: str | int | list | dict = 1,
-                 inner_name: str = "",
-                 is_bot: bool = False,
-                 first_name: str = "EMPTY_VALUE",
-                 last_name: str = "EMPTY_VALUE",
-                 username: str = "EMPTY_VALUE",
-                 language_code: str = "EMPTY_VALUE",
-                 email: str = "EMPTY_VALUE",
-                 sheet_id: str = "EMPTY_VALUE",
-                 permission_id: str = "EMPTY_VALUE",
-                 state: State = None):
+    def __init__(self, uid: str | int | list | dict,
+                 inner_name: str,
+                 first_name: str,
+                 last_name: str,
+                 username: str,
+                 language_code: str,
+                 email: str,
+                 sheet_id: str,
+                 permission_id: str,
+                 state):
         """ Accepts *args or list or dict"""
         if isinstance(uid, int | str):
-            self.uid = str(uid)
+            self.uid = str(uid) or 1
             self.inner_name = inner_name or "EMPTY_VALUE"
-            self.is_bot = is_bot
-            self.first_name = first_name
-            self.last_name = last_name
-            self.username = username
-            self.language_code = language_code
-            self.email = email
-            self.sheet_id = sheet_id
-            self.permission_id = permission_id
-            self.state = state or dict()
+            self.first_name = first_name or "EMPTY_VALUE"
+            self.last_name = last_name or "EMPTY_VALUE"
+            self.username = username or "EMPTY_VALUE"
+            self.language_code = language_code or "EMPTY_VALUE"
+            self.email = email or "EMPTY_VALUE"
+            self.sheet_id = sheet_id or "EMPTY_VALUE"
+            self.permission_id = permission_id or "EMPTY_VALUE"
+            self.state = state or "EMPTY_VALUE"
         elif (isinstance(uid, list) and len(User.ATTRS) != len(uid)) or \
                 (isinstance(uid, dict) and User.ATTRS != list(uid.keys())):
             raise ValueError(f"Not expected length in initialization, expected {len(User.ATTRS)}, got {len(uid)}")

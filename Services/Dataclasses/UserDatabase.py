@@ -38,6 +38,12 @@ class UserDatabase:
         if 5 == psw:
             self.database = []
 
+    def __iter__(self):
+        return iter(self.database)
+
+    def __next__(self):
+        return next(self)
+
     def __len__(self):
         return len(self.database)
 

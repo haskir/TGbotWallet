@@ -36,7 +36,7 @@ class GoogleSheets:
         httpAuth = credentials.authorize(httplib2.Http())
         self.service_inner = apiclient.discovery.build('sheets', 'v4', http=httpAuth)
 
-    def show_rows(self, spreadsheet_id: str = None, start: int = 1, stop: int = 1) -> None | list:
+    def show_rows(self, spreadsheet_id: str = None, start: int = 1, stop: int = 1) -> None | list[list]:
         if not start:
             start = 1
         if not stop:

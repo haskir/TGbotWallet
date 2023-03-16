@@ -4,6 +4,7 @@ from aiogram.types import (KeyboardButton,
                            Message,
                            ReplyKeyboardMarkup,
                            ReplyKeyboardRemove)
+from telegram_bot_calendar import DetailedTelegramCalendar, LSTEP
 
 
 standart_buttons: list[KeyboardButton] = [
@@ -43,14 +44,10 @@ __change_self_buttons: list[InlineKeyboardButton] = [
     InlineKeyboardButton(text="Назад", callback_data="BackToMainMenu"),
 ]
 
-__default_categories: list[InlineKeyboardButton] = [
-    InlineKeyboardButton(text="Еда", callback_data="Еда"),
-    InlineKeyboardButton(text="Транспорт", callback_data="Транспорт"),
-    InlineKeyboardButton(text="Жильё", callback_data="Жильё"),
-    InlineKeyboardButton(text="Одежда", callback_data="Одежда"),
-    InlineKeyboardButton(text="Электроника", callback_data="Электроника"),
-    InlineKeyboardButton(text="Прочее", callback_data="Прочее"),
-]
+default_categories: list[str] = ["Еда", "Транспорт", "Жильё", "Одежда", "Электроника", "Прочее"]
+
+__default_categories_buttons: list[InlineKeyboardButton] = [InlineKeyboardButton(text=category, callback_data=category)
+                                                            for category in default_categories]
 
 menu_keyboard = InlineKeyboardBuilder()
 statistic_keyboard = InlineKeyboardBuilder()
@@ -60,11 +57,12 @@ default_keyboard = ReplyKeyboardBuilder()
 check_keyboard = ReplyKeyboardBuilder()
 categories_keyboard = InlineKeyboardBuilder()
 
-
+calendar, step = DetailedTelegramCalendar().build()
 default_keyboard.row(*standart_buttons)
 [statistic_keyboard.row(button) for button in __statistic_buttons]
 [enrollment_keyboard.add(button) for button in __enrollment_buttons]
 change_self_keyboard.add(*__change_self_buttons)
 check_keyboard.add(*standart_buttons, check_button)
-categories_keyboard.row(*__default_categories[:3])
-categories_keyboard.row(*__default_categories[3:])
+categories_keyboard.row(*__default_categories_buttons[:3])
+categories_keyboard.row(*__default_categories_buttons[3:])
+[menu_keyboard.row(button) for button in menu_buttons if button not in menu_keyboard.buttons]
