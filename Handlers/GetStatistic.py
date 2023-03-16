@@ -6,7 +6,8 @@ statistic_states: dict = {
     "ShowEverything": [FSMGetStatistic.FSMGetStatisticMenu, "Что теперь?"],
     "StatisticByDate": [FSMGetStatistic.FSMGetStatisticMenu, "Я ещё не умею сортировать по дате"],
     "StatisticByCategory": [FSMGetStatistic.FSMChoosingCategory, "Сортировка по категории", categories_keyboard],
-    "StatisticByTotal": [FSMGetStatistic.FSMGetStatisticMenu, "Я ещё не научился сортировать по сумме"],
+    "StatisticByTotal": [FSMGetStatistic.FSMGetByTotal, "Введите нужный диапазон через тире\n"
+                                                        "Например: 0 - 1000"],
     "DeletePaymentByUid": [FSMGetStatistic.FSMDeletePaymentsByUid, "Введите uid покупки"]
 }
 
@@ -63,16 +64,31 @@ async def statistic_by_category(callback: CallbackQuery, state: FSMContext):
         user=callback.from_user.id,
         user_database=udb,
         payments_handler=payments_handler,
-        sort=[payments_handler.sort_category, callback.data]
+        sort=[payments_handler.CATEGORYSORT, (callback.data, )]
     )
     await callback.message.answer(text=f"Вот, что я смог найти\n{result}\nЧто дальше?",
                                   reply_markup=statistic_keyboard.as_markup())
     await state.set_state(FSMGetStatistic.FSMGetStatisticMenu)
 
 
-@get_statistic_router.callback_query(StateFilter(FSMGetStatistic.FSMGetByTotal))
-async def statistic_by_total(callback: CallbackQuery, state: FSMContext):
+@get_statistic_router.message(StateFilter(FSMGetStatistic.FSMGetByTotal),
+                              parse_total)
+async def statistic_by_total_correct(message: Message, state: FSMContext):
+    result = show_payments(
+        user=message.from_user.id,
+        user_database=udb,
+        payments_handler=payments_handler,
+        sort=[payments_handler.TOTALSORT, parse_total(message)]
+    )
+    await message.answer(text=f"Вот, что я смог найти\n{result}\nЧто дальше?",
+                         reply_markup=statistic_keyboard.as_markup())
     await state.set_state(FSMGetStatistic.FSMGetStatisticMenu)
+
+
+@get_statistic_router.message(StateFilter(FSMGetStatistic.FSMGetByTotal))
+async def statistic_by_total_correct(message: Message, state: FSMContext):
+    await message.answer(text="Моя твоя не понимать, повтори")
+    await state.set_state(FSMGetStatistic.FSMGetByTotal)
 
 
 @get_statistic_router.message(StateFilter(FSMGetStatistic),

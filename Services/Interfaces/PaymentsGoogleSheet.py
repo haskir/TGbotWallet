@@ -3,31 +3,39 @@ from Services.Interfaces import *
 from datetime import datetime, date
 
 
-def _date_sort(payment: Payment, start: str, stop: str) -> bool:
-    def convert(d: str) -> datetime:
-        return datetime.strptime(d, "%d.%m.%Y")
-
-    return convert(start) <= convert(payment.transaction_date) <= convert(stop)
-
-
-def _total_sort(payment: Payment, start: str, stop: str) -> bool:
-    total = int(payment.total)
-    return int(start) <= total <= int(stop)
-
-
-def _category_sort(category: str, goal: list[str]) -> bool:
-    return category in goal
-
-
 class PaymentsGoogleSheet:
+    @staticmethod
+    def __date_sort(payment: Payment, start: str, stop: str) -> bool:
+        def convert(d: str) -> datetime:
+            return datetime.strptime(d, "%d.%m.%Y")
+
+        return convert(start) <= convert(payment.transaction_date) <= convert(stop)
+
+    @staticmethod
+    def __total_sort(payment: Payment, start: int, stop: int) -> bool:
+        # print(f"{payment=}\n{start=}\n{stop=}")
+        return start <= payment.total <= stop
+
+    @staticmethod
+    def __category_sort(payment: Payment, start: str, stop=None) -> bool:
+        # print(f"\n\n{payment=}\n{start=}\n{stop=}\n\n")
+        if isinstance(start, int):
+            raise ValueError(f"В сортировку по категории пришло что-то не то"
+                             f"{payment=}\n{start=}\n{stop=}")
+        return payment.category in start
+
+    TOTALSORT = __total_sort
+    DATESORT = __date_sort
+    CATEGORYSORT = __category_sort
+
     def __init__(self, sheetHandler: GoogleSheets):
         self.sheetHandler = sheetHandler
 
-    def show_all(self, sheet_uid: str) -> list[list] | None:
+    def show_all(self, sheet_uid: str) -> list[Payment] | None:
         index = self.sheetHandler.last_row(sheet_uid)
-        return self.sheetHandler.show_rows(sheet_uid,
-                                           start=1,
-                                           stop=index)
+        return [Payment(*temp) for temp in self.sheetHandler.show_rows(sheet_uid,
+                                                                       start=1,
+                                                                       stop=index)]
 
     def write(self, sheet_uid: str, payment: Payment):
         index = self.sheetHandler.last_row(sheet_uid)
@@ -44,27 +52,25 @@ class PaymentsGoogleSheet:
         if isinstance(payment_uid, int):
             payment_uid = str(payment_uid)
 
-        result = self.show_all(sheet_id)
-        if result is None:
+        payments = self.show_all(sheet_id)
+        if payments is None:
             return False
         try:
-            for key, value in enumerate(row[0] for row in result):
-                print(f"{payment_uid=}, {key=}, {value=}")
+            for key, value in enumerate(pay.uid for pay in payments):
+                # print(f"{payment_uid=}, {key=}, {value=}")
                 if value == payment_uid:
                     print(key)
-                    self.sheetHandler.delete_row(sheet_id, start=key, end=key+1)
+                    self.sheetHandler.delete_row(sheet_id, start=key, end=key + 1)
                     return True
         except IndexError:
             ...
 
-    def sort(self, sheet_uid: str, sort_type: callable, goal) -> list:
-        result = [Payment(*temp) for temp in self.show_all(sheet_uid)]
-        return [tran for tran in result if sort_type(tran, goal)]
-
-    @staticmethod
-    def sort_category(payments: list[list], goal_category: list[str] | str) -> list[list]:
-        goal_category = [goal_category] if isinstance(goal_category, str) else goal_category
-        return [payment for payment in payments if _category_sort(payment[2], goal_category)]
+    @classmethod
+    def sort(cls, payments: list[Payment], sort_type: callable, goal: tuple) -> list[Payment]:
+        # print(f"{payments=}\n"
+        #       f"{sort_type=}\n"
+        #       f"{goal=}")
+        return [pay for pay in payments if sort_type(pay, *goal)]
 
     @staticmethod
     def summa_payments(payments: list[Payment]) -> int | float:
@@ -85,4 +91,3 @@ if __name__ == "__main__":
     finally:
         input("Удалить таблицу")
         g_handler.delete_tests()
-

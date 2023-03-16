@@ -37,18 +37,19 @@ def add_payment(user_uid: str | int, user_database: UserDatabase, payments_handl
 def show_payments(user: User | str | int,
                   user_database: UserDatabase,
                   payments_handler: PaymentsGoogleSheet,
-                  sort: None | list = None) -> str:
-
+                  # sort = [function_to_sort, (start: int | str, stop: None | int | str)]
+                  sort: None | list[callable, tuple] = None) -> str:
     sheet_id = user_database.get_user(user).sheet_id if isinstance(user, str | int) else user.sheet_id
-    all_payments = payments_handler.show_all(sheet_id)
+    all_payments: list[Payment] = payments_handler.show_all(sheet_id)
     if sort is not None:
-        print(f"{sort=}\n{all_payments=}")
-        all_payments = sort[0](all_payments[:], sort[1])
+        all_payments = payments_handler.sort(all_payments[:],
+                                             sort[0],
+                                             sort[1])
     if all_payments:
         result = [Payment(*string) for string in all_payments]
         return "\n".join(str(payment) for payment in result)
     else:
-        return"Пока что пусто\n"
+        return "Пока что пусто\n"
 
 
 def delete_payment(user: User | str | int,
@@ -57,3 +58,22 @@ def delete_payment(user: User | str | int,
                    payment: str | int) -> bool:
     sheet_id = user_database.get_user(user).sheet_id if isinstance(user, str | int) else user.sheet_id
     return payments_handler.delete_payment(sheet_id, payment)
+
+
+def __delete_empty_spaces(string: str) -> str:
+    from re import sub
+    return sub(" +", " ", string)
+
+
+def parse_total(message: Message):
+    message = __delete_empty_spaces(message.text) if isinstance(message, Message) else __delete_empty_spaces(message)
+    try:
+        if "-" in message:
+            start, stop = list(map(int, message.split("-")))
+        else:
+            start, stop = list(map(int, message.split(" ")))
+    except Exception as e:
+        print(e)
+        return False
+    else:
+        return start, stop if stop > start else False

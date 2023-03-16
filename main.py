@@ -29,7 +29,7 @@ async def back_to_menu(callback: CallbackQuery, state: FSMContext):
     await state.set_state(FSMMenuState)
 
 
-if __name__ == '__main__':
-    dp.run_polling(bot, )
-    ...
 # Запускаем бота
+if __name__ == '__main__':
+    dp.run_polling(bot)
+    ...
