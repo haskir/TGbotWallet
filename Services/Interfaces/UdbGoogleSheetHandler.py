@@ -14,16 +14,43 @@ class UdbGoogleSheetHandler:
         if not self.db_uid:
             self.db_uid = self.googleHandler.create("UserDatabase")
             print("File UserDatabase has been created in Google Drive")
-            self.googleHandler.create_permission(self.db_uid, "haskird2@gmail.com")
+            self.googleHandler.create_permission(self.db_uid, "haskird2@gmail.com", role="writer")
 
-    def load_db_to_google(self, UDb: UserDatabase):
-        for user in UDb.database:
-            print(user)
-            self.sheetHandler.append_row(self.db_uid, list(user))
+    def upload_database_to_google(self, user_database: UserDatabase):
+        last = self.sheetHandler.last_row(spreadsheet_id=self.db_uid)
+        if last:
+            rows = self.sheetHandler.show_rows(spreadsheet_id=self.db_uid, start=1, stop=last)
+            print("{rows=}")
+            uids_on_google = [row[0] for row in rows]
+            print(f"{uids_on_google=}")
+            for user in user_database:
+                if user.uid not in uids_on_google:
+                    self.__upload_new_user_to_google(user)
+        else:
+            for user in user_database:
+                self.__upload_new_user_to_google(user)
 
-    def upload_db_from_google(self, udb: UserDatabase = UserDatabase()):
-        for i in range(self.sheetHandler.last_row(spreadsheet_id=self.db_uid)):
-            print()
+    def __upload_new_user_to_google(self, user: User):
+        self.sheetHandler.append_row(spreadsheet_id=self.db_uid,
+                                     data=list(user))
+
+    def user_already_in_google_db(self, user: User | str) -> bool:
+        last = self.sheetHandler.last_row(spreadsheet_id=self.db_uid)
+        if not last:
+            return False
+        user_uid = user.uid if isinstance(user, User) else user
+        return user_uid in [row[0] for row in self.sheetHandler.show_rows(spreadsheet_id=self.db_uid,
+                                                                          start=1,
+                                                                          stop=last)]
+
+    def load_from_google(self, user_database: UserDatabase) -> bool:
+        last = self.sheetHandler.last_row(spreadsheet_id=self.db_uid)
+        if last:
+            users = self.sheetHandler.show_rows(spreadsheet_id=self.db_uid, start=1, stop=last)
+            [user_database.add_user(User(*user)) for user in users]
+            return True
+        else:
+            return False
 
     def clear_db(self, debug=False):
         for i in range(1, self.sheetHandler.last_row(self.db_uid) + 1):
@@ -40,7 +67,7 @@ if __name__ == "__main__":
     for u in users:
         db.add_user(u)
     testHandler = UdbGoogleSheetHandler(g_hand, s_hand)
-    testHandler.load_db_to_google(db)
+    testHandler.upload_database_to_google(db)
     s_hand.last_row(testHandler.db_uid)
     res = s_hand.show_rows(testHandler.db_uid, 1, 5)
     for item in res:
