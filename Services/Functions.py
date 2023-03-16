@@ -40,13 +40,13 @@ def show_payments(user: User | str | int,
                   # sort = [function_to_sort, (start: int | str, stop: None | int | str)]
                   sort: None | list[callable, tuple] = None) -> str:
     sheet_id = user_database.get_user(user).sheet_id if isinstance(user, str | int) else user.sheet_id
-    all_payments: list[Payment] = payments_handler.show_all(sheet_id)
+    all_payments: list[Payment] = payments_handler.sheetHandler.last_row(sheet_id)
     if sort is not None:
-        all_payments = payments_handler.sort(all_payments[:],
+        all_payments = payments_handler.sort(sheet_id,
                                              sort[0],
                                              sort[1])
     if all_payments:
-        result = [Payment(*string) for string in all_payments]
+        result = [Payment(*string) for string in payments_handler.show_all(sheet_id)]
         return "\n".join(str(payment) for payment in result)
     else:
         return "Пока что пусто\n"

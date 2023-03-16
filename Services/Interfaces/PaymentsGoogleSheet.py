@@ -19,9 +19,6 @@ class PaymentsGoogleSheet:
     @staticmethod
     def __category_sort(payment: Payment, start: str, stop=None) -> bool:
         # print(f"\n\n{payment=}\n{start=}\n{stop=}\n\n")
-        if isinstance(start, int):
-            raise ValueError(f"В сортировку по категории пришло что-то не то"
-                             f"{payment=}\n{start=}\n{stop=}")
         return payment.category in start
 
     TOTALSORT = __total_sort
@@ -65,12 +62,11 @@ class PaymentsGoogleSheet:
         except IndexError:
             ...
 
-    @classmethod
-    def sort(cls, payments: list[Payment], sort_type: callable, goal: tuple) -> list[Payment]:
+    def sort(self, sheet_id: str, sort_type: callable, goal: tuple) -> list[Payment]:
         # print(f"{payments=}\n"
         #       f"{sort_type=}\n"
         #       f"{goal=}")
-        return [pay for pay in payments if sort_type(pay, *goal)]
+        return [pay for pay in self.show_all(sheet_id) if sort_type(pay, *goal)]
 
     @staticmethod
     def summa_payments(payments: list[Payment]) -> int | float:
@@ -83,7 +79,7 @@ if __name__ == "__main__":
     s_handler = GoogleSheets()
     try:
         t_user.sheet_id = "1cbPYocbpmCPqLB-oQByNv1sv9aQHl5lNrjbruRfzF_A"
-        t_pay = Payment(0, "Еда", None, "Пятёрочка", 999, "Чипсы")
+        t_pay = Payment(0, None, "Еда", "Пятёрочка", 999, "Чипсы")
         t_g_h = PaymentsGoogleSheet(s_handler)
         t_g_h.delete_payment(t_user.sheet_id, "7")
     except Exception as e:
