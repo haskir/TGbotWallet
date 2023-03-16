@@ -16,7 +16,7 @@ statistic_states: dict = {
 async def statistic_menu(callback: CallbackQuery, state: FSMContext):
     if callback.data not in statistic_states:
         return
-    if "ShowEverything" in callback.data:
+    if "ShowEverything" == callback.data:
         await show_all_payments(callback, state)
 
     temp_keyboard = default_keyboard \
@@ -66,7 +66,7 @@ async def statistic_by_category(callback: CallbackQuery, state: FSMContext):
         payments_handler=payments_handler,
         sort=[payments_handler.CATEGORYSORT, (callback.data, )]
     )
-    await callback.message.answer(text=f"Вот, что я смог найти\n{result}\nЧто дальше?",
+    await callback.message.answer(text=f"Вот, что я смог найти:\n{result}\nЧто дальше?",
                                   reply_markup=statistic_keyboard.as_markup())
     await state.set_state(FSMGetStatistic.FSMGetStatisticMenu)
 
