@@ -28,7 +28,9 @@ async def change_self_menu(callback: CallbackQuery, state: FSMContext):
 @change_self_router.message(StateFilter(FSMChangeSelf.FSMChangeEmail),
                             lambda email: email_validation(email))
 async def change_self_email_correct(message: Message, state: FSMContext):
-    udb.get_user(message.from_user.id).email = message.text
+    user = udb.get_user(message.from_user.id)
+    user.email = message.text
+    user.permission_id = googleHandler.create_permission(user.sheet_id, message.text)
     await message.answer(text=f"Изменено: \n{show_user(udb.get_user(message.from_user.id))}",
                          reply_markup=change_self_keyboard.as_markup())
     await state.set_state(FSMChangeSelf.FSMChangeSelfMenu)

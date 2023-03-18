@@ -3,27 +3,27 @@ from .imports import *
 registration_router: Router = Router()
 
 
-@registration_router.message(CommandStart(), StateFilter(default_state))
+@registration_router.message(StateFilter(default_state))
 async def process_start_command(message: Message, state: FSMContext):
     user = message.from_user
-    if udb_g_sheet.user_already_in_google_db(user.id):
-        udb.get_user()
-    udb.add_user(User(uid=str(user.id),
-                      inner_name="",
-                      first_name=user.first_name,
-                      last_name=user.last_name,
-                      username=user.username,
-                      language_code=user.language_code,
-                      email="",
-                      sheet_id="",
-                      permission_id="",
-                      state={"Category": None,
-                             "Market": None,
-                             "Total": None,
-                             "Description": None}
-                      )
-                 )
-    await message.answer(text="Привет, этот бот - твой личный кошелёк\nЧтобы начать введи своё имя")
+    if udb.add_user(User(uid=str(user.id),
+                         inner_name="",
+                         first_name=user.first_name,
+                         last_name=user.last_name,
+                         username=user.username,
+                         language_code=user.language_code,
+                         email="",
+                         sheet_id="",
+                         permission_id="",
+                         state="")
+                    ):
+        user = udb.get_user(user.id)
+        user.sheet_id = googleHandler.create(user.username)
+        await message.answer(text="Привет, этот бот - твой личный кошелёк\nЧтобы начать введи своё имя")
+    else:
+        await message.answer(text="Мы тебя помним!",
+                             reply_markup=menu_keyboard.as_markup())
+        await state.set_state(FSMMenuState)
 
 
 # Введено корректное имя
@@ -46,21 +46,15 @@ async def warning_not_name(message: Message):
 @registration_router.message(StateFilter(FSMFillForm.fill_email), email_validation)
 async def process_email_sent(message: Message, state: FSMContext):
     user = udb.get_user(message.from_user.id)
-    print(user)
-    udb_g_sheet.upload_database_to_google(user)
     user.email = message.text
-    if not udb_g_sheet.user_already_in_google_db(user):
-        user.sheet_id = googleHandler.create(user.username)
-        user.permission_id = googleHandler.create_permission(user.sheet_id, user.email)
-        udb_g_sheet
-        await message.answer(text=f'Спасибо! Ссылка на табличку придёт вам на почту!',
-                             reply_markup=menu_keyboard.as_markup(),
-                             resize_keyboard=True)
-    else:
-        await message.answer(text=f'О, я вас знаю, вы у нас уже были!\n'
-                                  f'Вот, что я умею:\n',
-                             reply_markup=menu_keyboard.as_markup(),
-                             resize_keyboard=True)
+    user.permission_id = googleHandler.create_permission(user.sheet_id, user.email)
+    udb_g_sheet.upload_database_to_google(udb)
+    user.state = {"Category": None,
+                  "Market": None,
+                  "Total": None,
+                  "Description": None}
+    await message.answer(text=f'Спасибо! Ссылка на табличку придёт вам на почту!',
+                         reply_markup=menu_keyboard.as_markup())
     await state.set_state(FSMMenuState)
 
 
