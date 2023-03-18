@@ -22,7 +22,7 @@ class User(dict):
                  email: str,
                  sheet_id: str,
                  permission_id: str,
-                 state):
+                 state: str = ""):
         """ Accepts *args or list or dict"""
         if isinstance(uid, int | str):
             self.uid = str(uid) or 1

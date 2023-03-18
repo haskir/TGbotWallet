@@ -4,7 +4,6 @@ from aiogram.types import (KeyboardButton,
                            Message,
                            ReplyKeyboardMarkup,
                            ReplyKeyboardRemove)
-from telegram_bot_calendar import DetailedTelegramCalendar, LSTEP
 
 
 standart_buttons: list[KeyboardButton] = [
@@ -57,7 +56,7 @@ default_keyboard = ReplyKeyboardBuilder()
 check_keyboard = ReplyKeyboardBuilder()
 categories_keyboard = InlineKeyboardBuilder()
 
-calendar, step = DetailedTelegramCalendar().build()
+
 default_keyboard.row(*standart_buttons)
 [statistic_keyboard.row(button) for button in __statistic_buttons]
 [enrollment_keyboard.add(button) for button in __enrollment_buttons]

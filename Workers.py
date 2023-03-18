@@ -7,8 +7,7 @@ sheetHandler = GoogleSheets(path_to_ini="./cred.ini")
 udb_g_sheet = UdbGoogleSheetHandler(googleHandler=googleHandler, sheetHandler=sheetHandler)
 payments_handler = PaymentsGoogleSheet(sheetHandler=sheetHandler)
 # for file in googleHandler.show_files():
-#     if file["name"] == "UserDatabase":
-#         googleHandler.delete_file(file["id"])
+#     googleHandler.delete_file(file["id"])
 udb_g_sheet.load_from_google(udb)
 
 SHEET_UID = "1cbPYocbpmCPqLB-oQByNv1sv9aQHl5lNrjbruRfzF_A"
