@@ -58,6 +58,8 @@ class UdbGoogleSheetHandler:
                                                row=key+1,
                                                data=list(user))
                     return True
+            self.sheetHandler.append_row(spreadsheet_id=self.db_uid,
+                                         data=list(user))
 
     def load_from_google(self, user_database: UserDatabase) -> bool:
         last = self.sheetHandler.last_row(spreadsheet_id=self.db_uid)
