@@ -34,7 +34,7 @@ async def enrollment_delete(callback: CallbackQuery, state: FSMContext):
     await state.set_state(FSMEnrollment.FSMCEnrollmentMenu)
 
 
-@enrollment_router.message(StateFilter(FSMEnrollment.FSMCEnrollmentMenu),
+@enrollment_router.message(StateFilter(FSMEnrollment),
                            Text(text="Назад", ignore_case=True))
 async def enrollment_delete(message: Message, state: FSMContext):
     await message.answer(text="Возвращаю обратно, в главное меню",
