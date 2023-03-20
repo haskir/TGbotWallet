@@ -1,6 +1,5 @@
 from Services.Interfaces import *
 
-
 udb = UserDatabase()
 googleHandler = GoogleDriver(path_to_ini="./cred.ini")
 sheetHandler = GoogleSheets(path_to_ini="./cred.ini")
@@ -10,14 +9,26 @@ payments_handler = PaymentsGoogleSheet(sheetHandler=sheetHandler)
 #     googleHandler.delete_file(file["id"])
 udb_g_sheet.load_from_google(udb)
 
-SHEET_UID = "1cbPYocbpmCPqLB-oQByNv1sv9aQHl5lNrjbruRfzF_A"
+print("Google on bot files:")
+for file in googleHandler.show_files():
+    print(f"{file}")
+
 
 if __name__ == "__main__":
-    users = [User(i) for i in range(7)]
-    for u in users:
-        udb.add_user(u)
-    udb_g_sheet = UdbGoogleSheetHandler(googleHandler, sheetHandler)
-    udb_g_sheet.upload_database_to_google(udb)
-    sheetHandler.last_row(udb_g_sheet.db_uid)
-    input()
-    udb_g_sheet.clear_db()
+    try:
+        user = User({'uid': 1,
+                     'is_bot': False,
+                     'first_name': 'EMPTY_VALUE',
+                     'last_name': 'EMPTY_VALUE',
+                     'username': 'EMPTY_VALUE',
+                     'language_code': 'EMPTY_VALUE',
+                     'email': 'EMPTY_VALUE',
+                     'sheet_id': 'EMPTY_VALUE',
+                     'permission_id': 0,
+                     'state': None})
+        print(sheetHandler.edit_row(udb_g_sheet.db_uid, row=1, data=list(user)))
+        input()
+    except Exception as e:
+        print(e)
+    finally:
+        googleHandler.delete_tests()

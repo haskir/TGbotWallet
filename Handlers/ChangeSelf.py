@@ -33,6 +33,7 @@ async def change_self_email_correct(message: Message, state: FSMContext):
     user.permission_id = googleHandler.create_permission(user.sheet_id, message.text)
     await message.answer(text=f"Изменено: \n{show_user(udb.get_user(message.from_user.id))}",
                          reply_markup=change_self_keyboard.as_markup())
+    udb_g_sheet.update_user(user)
     await state.set_state(FSMChangeSelf.FSMChangeSelfMenu)
 
 
@@ -49,9 +50,11 @@ async def change_self_email_incorrect(message: Message, state: FSMContext):
                             ~Text(text="Назад", ignore_case=True),
                             ~Text(text="Отмена", ignore_case=True))
 async def change_self_name_correct(message: Message, state: FSMContext):
-    udb.get_user(message.from_user.id).inner_name = message.text.capitalize()
-    await message.answer(text=f"Изменено: \n {show_user(udb.get_user(message.from_user.id))}",
+    user = udb.get_user(message.from_user.id)
+    user.inner_name = message.text.capitalize()
+    await message.answer(text=f"Изменено: \n{show_user(udb.get_user(message.from_user.id))}",
                          reply_markup=change_self_keyboard.as_markup())
+    udb_g_sheet.update_user(user)
     await state.set_state(FSMChangeSelf.FSMChangeSelfMenu)
 
 

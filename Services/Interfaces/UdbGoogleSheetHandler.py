@@ -10,6 +10,7 @@ class UdbGoogleSheetHandler:
         for Gfile in self.googleHandler.show_files():
             if Gfile["name"] == "UserDatabase":
                 self.db_uid = Gfile["id"]
+                print(f"UserDatabase uid:\n{self.db_uid}")
 
         if not self.db_uid:
             self.db_uid = self.googleHandler.create("UserDatabase")
@@ -42,6 +43,21 @@ class UdbGoogleSheetHandler:
         return user_uid in [row[0] for row in self.sheetHandler.show_rows(spreadsheet_id=self.db_uid,
                                                                           start=1,
                                                                           stop=last)]
+
+    def update_user(self, user: User):
+        last = self.sheetHandler.last_row(spreadsheet_id=self.db_uid)
+        if not last:
+            last = 1
+            self.sheetHandler.append_row(spreadsheet_id=self.db_uid,
+                                         data=list(user))
+        else:
+            for key, row in enumerate(self.sheetHandler.show_rows(spreadsheet_id=self.db_uid,
+                                                                  start=0, stop=last)):
+                if row[0] == user.uid:
+                    self.sheetHandler.edit_row(spreadsheet_id=self.db_uid,
+                                               row=key+1,
+                                               data=list(user))
+                    return True
 
     def load_from_google(self, user_database: UserDatabase) -> bool:
         last = self.sheetHandler.last_row(spreadsheet_id=self.db_uid)
