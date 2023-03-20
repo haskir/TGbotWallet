@@ -1,1 +1,1 @@
-print(int(" 10 "))
+print(len({1: 1, 2: 2}))

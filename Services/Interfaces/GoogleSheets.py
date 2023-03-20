@@ -4,10 +4,6 @@ from oauth2client.service_account import ServiceAccountCredentials
 from urllib.error import HTTPError
 
 
-def html_error_handler(func):
-    ...
-
-
 class GoogleSheets:
     Exist = False
 
@@ -46,33 +42,37 @@ class GoogleSheets:
             range=f'A{start}:Z{stop}',
             majorDimension="ROWS"
         ).execute()
-        # [0] cause just 1 string
         if "values" in response:
             return response["values"]
         else:
             return None
 
+    def edit_row(self, spreadsheet_id: str = None, row: int = 1, data: list[str | int] = []):
+        values = {
+            "range": f'Sheet1!{row}:{row}',
+            "majorDimension": "ROWS",
+            "values": [data]
+        }
+        return self.service_inner.spreadsheets().values().update(spreadsheetId=spreadsheet_id,
+                                                                 range=f"Sheet1!{row}:{row}",
+                                                                 valueInputOption="USER_ENTERED",
+                                                                 body=values,).execute()
+
     def append_row(self, spreadsheet_id: str, data: list, category: str = "Sheet1"):
         values = {
             "values": [data]
         }
-        try:
-            self.service_inner.spreadsheets().values().append(
-                spreadsheetId=spreadsheet_id,
-                range=f"{category}!A1:I1",
-                valueInputOption="USER_ENTERED",
-                insertDataOption="INSERT_ROWS",
-                body=values).execute()
-        except HTTPError as e:
-            print(e)
+        self.service_inner.spreadsheets().values().append(
+            spreadsheetId=spreadsheet_id,
+            range=f"{category}!A1:I1",
+            valueInputOption="USER_ENTERED",
+            insertDataOption="INSERT_ROWS",
+            body=values).execute()
 
     def clear_row(self, spreadsheet_id: str, row: int, category: str = "Sheet1!"):
-        try:
-            self.service_inner.spreadsheets().values().clear(
-                spreadsheetId=spreadsheet_id,
-                range=f"{category}{row}:{row}").execute()
-        except HTTPError as e:
-            print(e)
+        self.service_inner.spreadsheets().values().clear(
+            spreadsheetId=spreadsheet_id,
+            range=f"{category}{row}:{row}").execute()
 
     def delete_row(self, spreadsheet_id: str, start: int, end: int):
         body = {
@@ -89,25 +89,19 @@ class GoogleSheets:
                 }
             ]
         }
-        try:
-            self.service_inner.spreadsheets().batchUpdate(
-                spreadsheetId=spreadsheet_id,
-                body=body
-            ).execute()
-        except HTTPError as e:
-            print(e)
+        self.service_inner.spreadsheets().batchUpdate(
+            spreadsheetId=spreadsheet_id,
+            body=body
+        ).execute()
 
     def last_row(self, spreadsheet_id: str, category: str = "Sheet1!") -> int:
-        try:
-            result = self.service_inner.spreadsheets().values().get(
-                spreadsheetId=spreadsheet_id,
-                range=f"{category}A:A").execute()
-            if "values" in result.keys():
-                return len(result["values"])
-            else:
-                return 0
-        except HTTPError as e:
-            print(e)
+        result = self.service_inner.spreadsheets().values().get(
+            spreadsheetId=spreadsheet_id,
+            range=f"{category}A:A").execute()
+        if "values" in result.keys():
+            return len(result["values"])
+        else:
+            return 0
 
 
 if __name__ == "__main__":

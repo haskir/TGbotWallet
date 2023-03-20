@@ -1,7 +1,7 @@
 from aiogram.filters.state import State
 
 
-class User(dict):
+class User:
     ATTRS = ["uid",
              "inner_name",
              "first_name",
@@ -14,14 +14,14 @@ class User(dict):
              "state"]
 
     def __init__(self, uid: str | int | list | dict,
-                 inner_name: str,
-                 first_name: str,
-                 last_name: str,
-                 username: str,
-                 language_code: str,
-                 email: str,
-                 sheet_id: str,
-                 permission_id: str,
+                 inner_name: str = "",
+                 first_name: str = "",
+                 last_name: str = "",
+                 username: str = "",
+                 language_code: str = "",
+                 email: str = "",
+                 sheet_id: str = "",
+                 permission_id: str = "",
                  state: str = ""):
         """ Accepts *args or list or dict"""
         if isinstance(uid, int | str):
@@ -34,9 +34,9 @@ class User(dict):
             self.email = email or "EMPTY_VALUE"
             self.sheet_id = sheet_id or "EMPTY_VALUE"
             self.permission_id = permission_id or "EMPTY_VALUE"
-            self.state = state or "EMPTY_VALUE"
+            self.state = {}
         elif (isinstance(uid, list) and len(User.ATTRS) != len(uid)) or \
-                (isinstance(uid, dict) and User.ATTRS != list(uid.keys())):
+                (isinstance(uid, dict) and len(User.ATTRS) != len(uid.keys())):
             raise ValueError(f"Not expected length in initialization, expected {len(User.ATTRS)}, got {len(uid)}")
         elif isinstance(uid, dict):
             self.__dict__ = {key: value for key, value in uid.items()}
@@ -44,7 +44,10 @@ class User(dict):
             self.__dict__ = {User.ATTRS[key]: value for key, value in enumerate(uid)}
         else:
             raise ValueError("Not expected type in initialization")
-        super().__init__(self.__dict__)
+
+    @classmethod
+    def __call__(cls, pairs: dict):
+        return User(pairs)
 
     def __eq__(self, other):
         if isinstance(other, User):
@@ -52,18 +55,14 @@ class User(dict):
         else:
             return False
 
-    @classmethod
-    def __call__(cls, pairs: dict):
-        return User(pairs)
-
     def __iter__(self):
-        return iter(self.__dict__.values())
+        return iter([value for key, value in self.__dict__.items() if key != "state"])
 
     def __next__(self):
         return next(iter(self))
 
     def __repr__(self):
-        return f"User : {str({key: value for key, value in self.__dict__.items()})}\n"
+        return f"User : {str({key: value for key, value in self.__dict__.items() if key != 'state'})}\n"
 
 
 if __name__ == "__main__":
