@@ -39,6 +39,7 @@ async def process_email_sent(message: Message, state: FSMContext):
     user.email = message.text
     user.permission_id = googleHandler.create_permission(user.sheet_id, user.email)
     udb_g_sheet.update_user(user)
+    print(f"New user:\n{user}")
     await message.answer(text=f'Спасибо! Ссылка на табличку придёт вам на почту!',
                          reply_markup=menu_keyboard.as_markup())
     await state.set_state(FSMMenuState)
