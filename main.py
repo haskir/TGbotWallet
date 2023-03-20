@@ -1,3 +1,5 @@
+import datetime
+
 from Handlers import *
 import os
 import dotenv
@@ -9,7 +11,7 @@ API_TOKEN: str = os.getenv('BOT_TOKEN')
 # Создаем объекты бота и диспетчера
 bot: Bot = Bot(token=API_TOKEN)
 storage: MemoryStorage = MemoryStorage()
-dp: Dispatcher = Dispatcher(bot=bot)
+dp: Dispatcher = Dispatcher(bot=bot, storage=storage)
 dp.include_router(change_self_router)
 dp.include_router(get_statistic_router)
 dp.include_router(menu_router)
@@ -25,11 +27,18 @@ async def back_to_menu(callback: CallbackQuery, state: FSMContext):
                                   reply_markup=ReplyKeyboardRemove())
     await callback.message.answer(text="Главное меню",
                                   reply_markup=menu_keyboard.as_markup())
-
     await state.set_state(FSMMenuState)
+
+
+def main():
+    try:
+        dp.run_polling(bot)
+    except Exception as e:
+        dp.shutdown()
+        return
 
 
 # Запускаем бота
 if __name__ == '__main__':
-    dp.run_polling(bot)
-    ...
+    while True:
+        main()

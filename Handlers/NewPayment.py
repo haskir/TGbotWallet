@@ -79,7 +79,8 @@ async def back1(message: Message, state: FSMContext):
 
 @payment_router.message(StateFilter(FSMewPayment.FSMFillMarket), Text(text="Назад", ignore_case=True))
 async def back2(message: Message, state: FSMContext):
-    await message.answer(text=payment_states.get("NewPaymentCategory")[1])
+    await message.answer(text=payment_states.get("NewPaymentCategory")[1],
+                         reply_markup=categories_keyboard.as_markup())
     await state.set_state(FSMewPayment.FSMFillCategory)
 
 

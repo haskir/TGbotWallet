@@ -9,9 +9,10 @@ payments_handler = PaymentsGoogleSheet(sheetHandler=sheetHandler)
 #     googleHandler.delete_file(file["id"])
 udb_g_sheet.load_from_google(udb)
 
-print("Google on bot files:")
+print("Google files in bot:")
 for file in googleHandler.show_files():
     print(f"{file}")
+    
 
 
 if __name__ == "__main__":
@@ -26,7 +27,6 @@ if __name__ == "__main__":
                      'sheet_id': 'EMPTY_VALUE',
                      'permission_id': 0,
                      'state': None})
-        print(sheetHandler.edit_row(udb_g_sheet.db_uid, row=1, data=list(user)))
         input()
     except Exception as e:
         print(e)
