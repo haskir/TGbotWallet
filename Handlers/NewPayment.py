@@ -27,33 +27,33 @@ async def cancel(message: Message, state: FSMContext):
 async def new_payment_category(callback: CallbackQuery, state: FSMContext):
     await callback.message.answer(text=payment_states.get("NewPaymentMarket")[1],
                                   reply_markup=default_keyboard.as_markup())
-    udb.get_user(callback.from_user.id).state["Category"] = callback.data
+    await state.update_data({"category": callback.data})
     await state.set_state(FSMewPayment.FSMFillMarket)
 
 
 @payment_router.message(StateFilter(FSMewPayment.FSMFillMarket), F.text.isalpha(),
-                        ~Text(text="Назад",
-                              ignore_case=True))
+                        ~Text(text="Назад", ignore_case=True))
 async def new_payment_total(message: Message, state: FSMContext):
     await message.answer(text=payment_states.get("NewPaymentTotal")[1])
-    udb.get_user(message.from_user.id).state["Market"] = message.text
+    await state.update_data({"Market": message.text})
     await state.set_state(FSMewPayment.FSMFillTotal)
 
 
 @payment_router.message(StateFilter(FSMewPayment.FSMFillTotal), F.text.isdigit())
 async def new_payment_description(message: Message, state: FSMContext):
     await message.answer(text=payment_states.get("NewPaymentDescription")[1])
-    udb.get_user(message.from_user.id).state["Total"] = message.text
+    await state.update_data({"Total": message.text})
     await state.set_state(FSMewPayment.FSMFillDescription)
 
 
 @payment_router.message(StateFilter(FSMewPayment.FSMFillDescription),
                         ~Text(text="Назад", ignore_case=True))
 async def new_payment_check(message: Message, state: FSMContext):
-    udb.get_user(message.from_user.id).state["Description"] = message.text
+    await state.update_data({"Description": message.text})
     await message.answer(text=payment_states.get("NewPaymentCheck")[1],
                          reply_markup=ReplyKeyboardRemove())
-    await message.answer(text='\n'.join(udb.get_user(message.from_user.id).state.values()),
+    result = await state.get_data()
+    await message.answer(text='\n'.join(result.values()),
                          reply_markup=check_keyboard.as_markup())
     await state.set_state(FSMewPayment.FSMCheck)
 
@@ -64,7 +64,9 @@ async def done(message: Message, state: FSMContext):
                          reply_markup=ReplyKeyboardRemove())
     await message.answer("Что будем делать дальше?",
                          reply_markup=menu_keyboard.as_markup())
-    add_payment(message.from_user.id, udb, payments_handler)
+    result = await state.get_data()
+    await state.clear()
+    add_payment(udb.get_user(message.from_user.id), result, payments_handler)
     await state.set_state(FSMMenuState)
 
 

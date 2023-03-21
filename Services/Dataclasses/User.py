@@ -10,8 +10,7 @@ class User:
              "language_code",
              "email",
              "sheet_id",
-             "permission_id",
-             "state"]
+             "permission_id"]
 
     def __init__(self, uid: str | int | list | dict,
                  inner_name: str = "",
@@ -21,8 +20,8 @@ class User:
                  language_code: str = "",
                  email: str = "",
                  sheet_id: str = "",
-                 permission_id: str = "",
-                 state: str = ""):
+                 permission_id: str = ""
+                 ):
         """ Accepts *args or list or dict"""
         if isinstance(uid, int | str):
             self.uid = str(uid) or 1
@@ -34,7 +33,6 @@ class User:
             self.email = email or "EMPTY_VALUE"
             self.sheet_id = sheet_id or "EMPTY_VALUE"
             self.permission_id = permission_id or "EMPTY_VALUE"
-            self.state = {}
         elif (isinstance(uid, list) and len(User.ATTRS) != len(uid)) or \
                 (isinstance(uid, dict) and len(User.ATTRS) != len(uid.keys())):
             raise ValueError(f"Not expected length in initialization, expected {len(User.ATTRS)}, got {len(uid)}")
@@ -56,23 +54,22 @@ class User:
             return False
 
     def __iter__(self):
-        return iter([value for key, value in self.__dict__.items() if key != "state"])
+        return iter([value for key, value in self.__dict__.items()])
 
     def __next__(self):
         return next(iter(self))
 
     def __repr__(self):
-        return f"User : {str({key: value for key, value in self.__dict__.items() if key != 'state'})}\n"
+        return f"User : {str({key: value for key, value in self.__dict__.items()})}\n"
 
 
 if __name__ == "__main__":
     u1 = User(1)
     test_1 = User(1)
-    test_l = User([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, []])
+    test_l = User([1, 2, 3, 4, 5, 6, 7, 8, 9])
     test_d = {'uid': 1, 'is_bot': False, 'first_name': 'EMPTY_VALUE', 'last_name': 'EMPTY_VALUE',
               'username': 'EMPTY_VALUE', 'language_code': 'EMPTY_VALUE', 'email': 'EMPTY_VALUE',
-              'sheet_id': 'EMPTY_VALUE', 'permission_id': 0, 'state': None, 'categories': []}
+              'sheet_id': 'EMPTY_VALUE', 'permission_id': 0}
     print(test_1)
     print(test_l)
     print(User(test_d))
-    print(dict(test_l))
