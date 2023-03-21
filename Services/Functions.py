@@ -27,11 +27,8 @@ def show_user(user: User):
     return "\n".join(map(str, [user.uid, user.inner_name, user.email]))
 
 
-def add_payment(user_uid: str | int, user_database: UserDatabase, payments_handler: PaymentsGoogleSheet):
-    if isinstance(user_uid, int):
-        user_uid = str(user_uid)
-    user = user_database.get_user(user_uid)
-    payments_handler.write(user.sheet_id, Payment(None, None, *user.state.values()))
+def add_payment(user: User, data: dict, payments_handler: PaymentsGoogleSheet):
+    payments_handler.write(user.sheet_id, Payment(None, None, *data.values()))
 
 
 def show_payments(user: User | str | int,
@@ -47,7 +44,7 @@ def show_payments(user: User | str | int,
                                              sort[1])
     if all_payments:
         result = [Payment(*string) for string in payments_handler.show_all(sheet_id)]
-        return "\n".join(str(payment) for payment in result)
+        return "".join(str(payment) for payment in result)
     else:
         return "Пока что пусто\n"
 
