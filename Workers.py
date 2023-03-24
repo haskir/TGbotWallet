@@ -12,8 +12,6 @@ udb_g_sheet.load_from_google(udb)
 print("Google files in bot:")
 for file in googleHandler.show_files():
     print(f"{file}")
-    
-
 
 if __name__ == "__main__":
     try:
