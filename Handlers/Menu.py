@@ -10,10 +10,6 @@ states = {
 }
 
 
-# start_button = KeyboardButton(text="/start")
-# start_keyboard = ReplyKeyboardBuilder([[start_button]])
-
-
 @menu_router.callback_query(StateFilter(FSMMenuState))
 async def go_from_menu_to(callback: CallbackQuery, state: FSMContext):
     if callback.data in states.keys():
@@ -43,9 +39,9 @@ async def process_cancel_command_state(message: Message, state: FSMContext):
                              reply_markup=menu_keyboard.as_markup())
         await state.set_state(FSMMenuState)
     else:
-        await message.answer("Что мы умеем:",
+        await message.answer("Главное меню",
                              reply_markup=menu_keyboard.as_markup(one_time_keyboard=True))
-        await state.set_state(FSMMenuState)
+        await state.set_state(FSMFillForm.fill_name)
 
 
 @menu_router.callback_query(lambda callback: "BackToMainMenu" in callback.data)
