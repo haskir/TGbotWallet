@@ -31,30 +31,30 @@ async def add_payment(user: User, data: dict, payments_handler: PaymentsGoogleSh
     await payments_handler.write(user.sheet_id, Payment(None, None, *data.values()))
 
 
-async def show_payments(user: User | str | int,
-                        user_database: UserDatabase,
-                        payments_handler: PaymentsGoogleSheet,
-                        # sort = [function_to_sort, (start: int | str, stop: None | int | str)]
-                        sort: None | list[callable, tuple] = None) -> str:
+def show_payments(user: User | str | int,
+                  user_database: UserDatabase,
+                  payments_handler: PaymentsGoogleSheet,
+                  # sort = [function_to_sort, (start: int | str, stop: None | int | str)]
+                  sort: None | list[callable, tuple] = None) -> str:
     sheet_id = user_database.get_user(user).sheet_id if isinstance(user, str | int) else user.sheet_id
-    all_payments: list[Payment] | int = payments_handler.sheetHandler.last_row(sheet_id)
-    if sort is not None:
-        all_payments = payments_handler.sort(sheet_id,
-                                             sort[0],
-                                             sort[1])
-    if all_payments:
-        result = [Payment(*string) for string in payments_handler.show_all(sheet_id)]
+    last_row: int = payments_handler.sheetHandler.last_row(sheet_id)
+    if last_row:
+        result = [Payment(*string) for string in payments_handler.show_payments(sheet_id)]
+        if sort is not None:
+            result = payments_handler.sort(sheet_id,
+                                                 sort[0],
+                                                 sort[1])
         return "".join(str(payment) for payment in result)
     else:
         return "Пока что пусто\n"
 
 
-def delete_payment(user: User | str | int,
-                   user_database: UserDatabase,
-                   payments_handler: PaymentsGoogleSheet,
-                   payment: str | int) -> bool:
+async def delete_payment(user: User | str | int,
+                         user_database: UserDatabase,
+                         payments_handler: PaymentsGoogleSheet,
+                         payment: str | int) -> bool:
     sheet_id = user_database.get_user(user).sheet_id if isinstance(user, str | int) else user.sheet_id
-    return payments_handler.delete_payment(sheet_id, payment)
+    return await payments_handler.delete_payment(sheet_id, payment)
 
 
 def __delete_empty_spaces(string: str) -> str:

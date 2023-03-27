@@ -17,9 +17,9 @@ class PaymentsGoogleSheet:
         return start <= payment.total <= stop
 
     @staticmethod
-    def __category_sort(payment: Payment, start: str, stop=None) -> bool:
+    def __category_sort(payment: Payment, category: str, stop=None) -> bool:
         # print(f"\n\n{payment=}\n{start=}\n{stop=}\n\n")
-        return payment.category in start
+        return payment.category == category
 
     TOTALSORT = __total_sort
     DATESORT = __date_sort
@@ -28,11 +28,11 @@ class PaymentsGoogleSheet:
     def __init__(self, sheetHandler: GoogleSheets):
         self.sheetHandler = sheetHandler
 
-    def show_all(self, sheet_uid: str) -> list[Payment] | None:
+    def show_payments(self, sheet_uid: str) -> list[Payment] | None:
         index = self.sheetHandler.last_row(sheet_uid)
         return [Payment(*temp) for temp in self.sheetHandler.show_rows(sheet_uid,
-                                                                             start=1,
-                                                                             stop=index)]
+                                                                       start=1,
+                                                                       stop=index)]
 
     async def write(self, sheet_uid: str, payment: Payment):
         index = self.sheetHandler.last_row(sheet_uid)
@@ -49,7 +49,7 @@ class PaymentsGoogleSheet:
         if isinstance(payment_uid, int):
             payment_uid = str(payment_uid)
 
-        payments = await self.show_all(sheet_id)
+        payments = await self.show_payments(sheet_id)
         if payments is None:
             return False
         try:
@@ -62,8 +62,8 @@ class PaymentsGoogleSheet:
         except IndexError:
             ...
 
-    async def sort(self, sheet_id: str, sort_type: callable, goal: tuple) -> list[Payment]:
-        return [pay for pay in await self.show_all(sheet_id) if sort_type(pay, *goal)]
+    def sort(self, sheet_id: str, sort_type: callable, goal: tuple) -> list[Payment]:
+        return [pay for pay in self.show_payments(sheet_id) if sort_type(pay, *goal)]
 
     @staticmethod
     async def summa_payments(payments: list[Payment]) -> int | float:
