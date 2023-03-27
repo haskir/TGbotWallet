@@ -30,7 +30,7 @@ async def statistic_menu(callback: CallbackQuery, state: FSMContext):
 
 async def show_all_payments(callback: CallbackQuery, state: FSMContext):
     await callback.message.answer(text=f"Вот, что я нашёл:\n"
-                                       f"{await show_payments(callback.from_user.id, udb, payments_handler)}",
+                                       f"{show_payments(callback.from_user.id, udb, payments_handler)}",
                                   reply_markup=statistic_keyboard.as_markup())
     await state.set_state(FSMGetStatistic.FSMGetStatisticMenu)
 
@@ -38,7 +38,7 @@ async def show_all_payments(callback: CallbackQuery, state: FSMContext):
 @get_statistic_router.message(StateFilter(FSMGetStatistic.FSMDeletePaymentsByUid), F.text.isdigit())
 async def delete_payment_by_uid_correct(message: Message, state: FSMContext):
     await message.answer(text=f"Удаляем...\n")
-    if delete_payment(message.from_user.id, udb, payments_handler, message.text):
+    if await delete_payment(message.from_user.id, udb, payments_handler, message.text):
         await state.set_state(FSMGetStatistic.FSMGetStatisticMenu)
         await message.answer(text="Успешно удалено! Что дальше?",
                              reply_markup=statistic_keyboard.as_markup())
@@ -61,7 +61,7 @@ async def statistic_by_date(callback: CallbackQuery, state: FSMContext):
 @get_statistic_router.callback_query(StateFilter(FSMGetStatistic.FSMChoosingCategory),
                                      lambda callback: callback.data in default_categories)
 async def statistic_by_category(callback: CallbackQuery, state: FSMContext):
-    result = await show_payments(
+    result = show_payments(
         user=callback.from_user.id,
         user_database=udb,
         payments_handler=payments_handler,
