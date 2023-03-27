@@ -51,3 +51,11 @@ async def back_from_any(callback: CallbackQuery, state: FSMContext):
     await callback.message.answer(text="Что будем делать?",
                                   reply_markup=menu_keyboard.as_markup())
     await state.set_state(FSMMenuState)
+
+
+@menu_router.message(Command(commands=['showudb']))
+async def show_udb(message: Message, state: FSMContext):
+    if message.from_user.id == 456086104:
+        await message.answer(text=str(udb.database))
+    else:
+        await message.answer(text="Не покажу.")

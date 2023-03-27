@@ -30,7 +30,7 @@ async def statistic_menu(callback: CallbackQuery, state: FSMContext):
 
 async def show_all_payments(callback: CallbackQuery, state: FSMContext):
     await callback.message.answer(text=f"Вот, что я нашёл:\n"
-                                       f"{show_payments(callback.from_user.id, udb, payments_handler)}",
+                                       f"{await show_payments(callback.from_user.id, udb, payments_handler)}",
                                   reply_markup=statistic_keyboard.as_markup())
     await state.set_state(FSMGetStatistic.FSMGetStatisticMenu)
 
@@ -61,7 +61,7 @@ async def statistic_by_date(callback: CallbackQuery, state: FSMContext):
 @get_statistic_router.callback_query(StateFilter(FSMGetStatistic.FSMChoosingCategory),
                                      lambda callback: callback.data in default_categories)
 async def statistic_by_category(callback: CallbackQuery, state: FSMContext):
-    result = show_payments(
+    result = await show_payments(
         user=callback.from_user.id,
         user_database=udb,
         payments_handler=payments_handler,
