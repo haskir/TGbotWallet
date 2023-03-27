@@ -27,17 +27,17 @@ def show_user(user: User):
     return "\n".join(map(str, [user.uid, user.inner_name, user.email]))
 
 
-def add_payment(user: User, data: dict, payments_handler: PaymentsGoogleSheet):
-    payments_handler.write(user.sheet_id, Payment(None, None, *data.values()))
+async def add_payment(user: User, data: dict, payments_handler: PaymentsGoogleSheet):
+    await payments_handler.write(user.sheet_id, Payment(None, None, *data.values()))
 
 
-def show_payments(user: User | str | int,
-                  user_database: UserDatabase,
-                  payments_handler: PaymentsGoogleSheet,
-                  # sort = [function_to_sort, (start: int | str, stop: None | int | str)]
-                  sort: None | list[callable, tuple] = None) -> str:
+async def show_payments(user: User | str | int,
+                        user_database: UserDatabase,
+                        payments_handler: PaymentsGoogleSheet,
+                        # sort = [function_to_sort, (start: int | str, stop: None | int | str)]
+                        sort: None | list[callable, tuple] = None) -> str:
     sheet_id = user_database.get_user(user).sheet_id if isinstance(user, str | int) else user.sheet_id
-    all_payments: list[Payment] = payments_handler.sheetHandler.last_row(sheet_id)
+    all_payments: list[Payment] | int = payments_handler.sheetHandler.last_row(sheet_id)
     if sort is not None:
         all_payments = payments_handler.sort(sheet_id,
                                              sort[0],

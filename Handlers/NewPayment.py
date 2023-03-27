@@ -66,7 +66,7 @@ async def done(message: Message, state: FSMContext):
                          reply_markup=menu_keyboard.as_markup())
     result = await state.get_data()
     await state.set_data({})
-    add_payment(udb.get_user(message.from_user.id), result, payments_handler)
+    await add_payment(udb.get_user(message.from_user.id), result, payments_handler)
     await state.set_state(FSMMenuState)
 
 

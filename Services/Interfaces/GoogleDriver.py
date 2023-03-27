@@ -56,7 +56,7 @@ class GoogleDriver:
         else:
             return files
 
-    def create(self, name: str, is_folder: bool = False) -> str:
+    async def create(self, name: str, is_folder: bool = False) -> str | None:
         if not self.connected:
             self.__connect()
         file_metadata = {
@@ -64,13 +64,13 @@ class GoogleDriver:
             'mimeType': 'application/vnd.google-apps.folder' if is_folder else 'application/vnd.google-apps.spreadsheet'
         }
         try:
-            result = self.service_inner.files().create(body=file_metadata, fields='id').execute()
+            result = await self.service_inner.files().create(body=file_metadata, fields='id').execute()
         except HttpError as error:
             print(F'An error occurred: {error}')
-            return False
+            return None
         return result["id"]
 
-    def delete_file(self, file_id: str) -> bool:
+    async def delete_file(self, file_id: str) -> bool:
         if not self.connected:
             self.__connect()
         try:
@@ -80,7 +80,7 @@ class GoogleDriver:
             return False
         return True
 
-    def create_permission(self, file_id: str, user_email: str, role: str = "reader") -> int:
+    async def create_permission(self, file_id: str, user_email: str, role: str = "reader") -> int:
         if not self.connected:
             self.__connect()
         """ possible role == organizer writer reader
@@ -91,20 +91,20 @@ class GoogleDriver:
             'emailAddress': user_email,
         }
         try:
-            result = self.service_inner.permissions().create(fileId=file_id,
-                                                             body=user_permission).execute()
+            result = await self.service_inner.permissions().create(fileId=file_id,
+                                                                   body=user_permission).execute()
         except HttpError as error:
             response = f"Error while getting permissions {error}"
             print(response)
             return False
         return result["id"]
 
-    def delete_tests(self):
+    async def delete_tests(self):
         if not self.connected:
             self.__connect()
-        for file in self.show_files():
+        for file in await self.show_files():
             if "test" == file["name"]:
-                self.delete_file(file["id"])
+                await self.delete_file(file["id"])
 
 
 if __name__ == '__main__':

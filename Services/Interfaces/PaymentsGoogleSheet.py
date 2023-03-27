@@ -31,10 +31,10 @@ class PaymentsGoogleSheet:
     def show_all(self, sheet_uid: str) -> list[Payment] | None:
         index = self.sheetHandler.last_row(sheet_uid)
         return [Payment(*temp) for temp in self.sheetHandler.show_rows(sheet_uid,
-                                                                       start=1,
-                                                                       stop=index)]
+                                                                             start=1,
+                                                                             stop=index)]
 
-    def write(self, sheet_uid: str, payment: Payment):
+    async def write(self, sheet_uid: str, payment: Payment):
         index = self.sheetHandler.last_row(sheet_uid)
         response = self.sheetHandler.show_rows(sheet_uid,
                                                start=index,
@@ -43,13 +43,13 @@ class PaymentsGoogleSheet:
             payment.uid = 1
         elif isinstance(response, list):
             payment.uid = int(response[0][0]) + 1
-        self.sheetHandler.append_row(sheet_uid, list(payment))
+        await self.sheetHandler.append_row(sheet_uid, list(payment))
 
-    def delete_payment(self, sheet_id: str, payment_uid: str | int) -> bool:
+    async def delete_payment(self, sheet_id: str, payment_uid: str | int) -> bool:
         if isinstance(payment_uid, int):
             payment_uid = str(payment_uid)
 
-        payments = self.show_all(sheet_id)
+        payments = await self.show_all(sheet_id)
         if payments is None:
             return False
         try:
@@ -57,19 +57,16 @@ class PaymentsGoogleSheet:
                 # print(f"{payment_uid=}, {key=}, {value=}")
                 if value == payment_uid:
                     print(key)
-                    self.sheetHandler.delete_row(sheet_id, start=key, end=key + 1)
+                    await self.sheetHandler.delete_row(sheet_id, start=key, end=key + 1)
                     return True
         except IndexError:
             ...
 
-    def sort(self, sheet_id: str, sort_type: callable, goal: tuple) -> list[Payment]:
-        # print(f"{payments=}\n"
-        #       f"{sort_type=}\n"
-        #       f"{goal=}")
-        return [pay for pay in self.show_all(sheet_id) if sort_type(pay, *goal)]
+    async def sort(self, sheet_id: str, sort_type: callable, goal: tuple) -> list[Payment]:
+        return [pay for pay in await self.show_all(sheet_id) if sort_type(pay, *goal)]
 
     @staticmethod
-    def summa_payments(payments: list[Payment]) -> int | float:
+    async def summa_payments(payments: list[Payment]) -> int | float:
         return sum([tran.total for tran in payments])
 
 

@@ -47,7 +47,7 @@ class GoogleSheets:
         else:
             return None
 
-    def edit_row(self, spreadsheet_id: str = None, row: int = 1, data: list[str | int] = []):
+    async def edit_row(self, spreadsheet_id: str = None, row: int = 1, data: list[str | int] = []):
         values = {
             "range": f'Sheet1!{row}:{row}',
             "majorDimension": "ROWS",
@@ -58,7 +58,7 @@ class GoogleSheets:
                                                                  valueInputOption="USER_ENTERED",
                                                                  body=values,).execute()
 
-    def append_row(self, spreadsheet_id: str, data: list, category: str = "Sheet1"):
+    async def append_row(self, spreadsheet_id: str, data: list, category: str = "Sheet1"):
         values = {
             "values": [data]
         }
@@ -69,12 +69,12 @@ class GoogleSheets:
             insertDataOption="INSERT_ROWS",
             body=values).execute()
 
-    def clear_row(self, spreadsheet_id: str, row: int, category: str = "Sheet1!"):
+    async def clear_row(self, spreadsheet_id: str, row: int, category: str = "Sheet1!"):
         self.service_inner.spreadsheets().values().clear(
             spreadsheetId=spreadsheet_id,
             range=f"{category}{row}:{row}").execute()
 
-    def delete_row(self, spreadsheet_id: str, start: int, end: int):
+    async def delete_row(self, spreadsheet_id: str, start: int, end: int):
         body = {
             "requests": [
                 {
@@ -104,21 +104,21 @@ class GoogleSheets:
             return 0
 
 
-if __name__ == "__main__":
-    from GoogleDriver import GoogleDriver
-
-    service = GoogleDriver()
-    uid = service.create("test")
-    try:
-        sheetHandler = GoogleSheets()
-        service.create_permission(uid, "haskird2@gmail.com")
-        data_in = [1, 2]
-        sheetHandler.append_row(uid, data_in)
-        sheetHandler.append_row(uid, data_in)
-        # input("Нажми Enter для удаления первой строчки")
-        print(sheetHandler.show(uid))
-        # sheetHandler.clear_row(uid, 1)
-
-        input("Нажми Enter для удаления тестовой таблички")
-    finally:
-        service.delete_tests()
+# if __name__ == "__main__":
+#     from GoogleDriver import GoogleDriver
+#
+#     service = GoogleDriver()
+#     uid = service.create("test")
+#     try:
+#         sheetHandler = GoogleSheets()
+#         await service.create_permission(uid, "haskird2@gmail.com")
+#         data_in = [1, 2]
+#         sheetHandler.append_row(uid, data_in)
+#         sheetHandler.append_row(uid, data_in)
+#         # input("Нажми Enter для удаления первой строчки")
+#         print(sheetHandler.show(uid))
+#         # sheetHandler.clear_row(uid, 1)
+#
+#         input("Нажми Enter для удаления тестовой таблички")
+#     finally:
+#         service.delete_tests()
