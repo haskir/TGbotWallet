@@ -1,15 +1,13 @@
-import datetime
-
 from Handlers import *
 import os
 import dotenv
 
 dotenv.load_dotenv()
 
-API_TOKEN: str = os.getenv('BOT_TOKEN')
+TGbotWallet_token: str = os.getenv('TGbotWallet_token')
 
 # Создаем объекты бота и диспетчера
-bot: Bot = Bot(token=API_TOKEN)
+bot: Bot = Bot(token=TGbotWallet_token)
 storage: MemoryStorage = MemoryStorage()
 dp: Dispatcher = Dispatcher(bot=bot, storage=storage)
 dp.include_router(change_self_router)
