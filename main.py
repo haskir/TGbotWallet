@@ -1,3 +1,5 @@
+import asyncio
+
 from Handlers import *
 import os
 import dotenv
@@ -21,16 +23,20 @@ dp.include_router(registration_router)
 @dp.callback_query(~StateFilter(default_state),
                    lambda callback: "BackToMainMenu" in callback.data)
 async def back_to_menu(callback: CallbackQuery, state: FSMContext):
-    await callback.message.answer(text="Возвращаюсь",
-                                  reply_markup=ReplyKeyboardRemove())
-    await callback.message.answer(text="Главное меню",
-                                  reply_markup=menu_keyboard.as_markup())
+    await callback.message.edit_reply_markup(reply_markup=menu_keyboard.as_markup())
     await state.set_state(FSMMenuState)
 
 
-def main():
+# @dp.callback_query(Command(commands=['Menu']))
+# async def back_to_menu(callback: CallbackQuery, state: FSMContext):
+#     await bot.edit_message_text("Главное меню")
+#     await callback.message.edit_reply_markup(reply_markup=menu_keyboard.as_markup())
+#     await state.set_state(FSMMenuState)
+
+
+async def main():
     try:
-        dp.run_polling(bot)
+        await dp.start_polling(bot)
     except Exception as e:
         dp.shutdown()
         return
@@ -39,4 +45,4 @@ def main():
 # Запускаем бота
 if __name__ == '__main__':
     while True:
-        main()
+        asyncio.run(main())

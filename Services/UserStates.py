@@ -1,44 +1,69 @@
-from aiogram.filters import StateFilter
 from aiogram.filters.state import State, StatesGroup
-from aiogram.fsm.context import FSMContext
 
 
-# Cоздаём класс, наследуемый от StatesGroup, для группы состояний нашей FSM
+class FSM(State):
+    def __init__(self):
+        self.prev, self.next = None, None
+        super().__init__()
+
+
+FSMMenuState = FSM()
+
+
 class FSMFillForm(StatesGroup):
-    fill_name = State()  # Состояние ожидания ввода имени
-    fill_email = State()  # Состояние ожидания ввода возраста
+    fill_name = FSM()
+    fill_email = FSM()
 
-
-FSMMenuState = State()
+    fill_name.next, fill_email.prev = fill_email, fill_name
+    fill_name.prev = FSMMenuState
 
 
 class FSMewPayment(StatesGroup):
-    FSMFillCategory = State()
-    FSMFillMarket = State()
-    FSMFillTotal = State()
-    FSMFillDescription = State()
-    FSMCheck = State()
+    FSMFillCategory = FSM()
+    FSMFillMarket = FSM()
+    FSMFillTotal = FSM()
+    FSMFillDescription = FSM()
+    FSMCheck = FSM()
+
+    FSMFillCategory.prev, FSMFillCategory.next = FSMMenuState, FSMFillMarket
+    FSMFillMarket.prev, FSMFillMarket.next = FSMFillCategory, FSMFillTotal
+    FSMFillTotal.prev, FSMFillTotal.next = FSMFillMarket, FSMFillDescription
+    FSMFillDescription.prev, FSMFillDescription.next = FSMFillTotal, FSMCheck
+    FSMCheck.prev, FSMCheck.next = FSMFillDescription, FSMMenuState
 
 
 class FSMGetStatistic(StatesGroup):
-    FSMGetStatisticMenu = State()
-    FSMGetAll = State()
-    FSMGetByTotal = State()
-    FSMGetByDate = State()
-    FSMGetByCategory = State()
-    FSMChoosingCategory = State()
-    FSMDeletePaymentsByUid = State()
+    FSMGetStatisticMenu = FSM()
+    FSMGetAll = FSM()
+    FSMGetByTotal = FSM()
+    FSMGetByDate = FSM()
+    FSMGetByCategory = FSM()
+    FSMDeletePaymentsByUid = FSM()
+
+    FSMGetStatisticMenu.prev = FSMMenuState
+    FSMGetByDate.prev = FSMGetStatisticMenu
+    FSMGetByCategory.prev = FSMGetStatisticMenu
+    FSMGetByCategory.prev,  FSMGetByCategory.next = FSMGetStatisticMenu, FSMGetStatisticMenu
+    FSMDeletePaymentsByUid.prev, FSMDeletePaymentsByUid.next = FSMGetStatisticMenu, FSMGetStatisticMenu
 
 
 class FSMChangeSelf(StatesGroup):
-    FSMChangeSelfMenu = State()
-    FSMShowInfo = State()
-    FSMChangeEmail = State()
-    FSMChangeName = State()
+    FSMChangeSelfMenu = FSM()
+    FSMShowInfo = FSM()
+    FSMChangeEmail = FSM()
+    FSMChangeName = FSM()
+
+    FSMChangeSelfMenu.prev = FSMMenuState
+    FSMShowInfo.prev = FSMMenuState
+    FSMChangeEmail.prev, FSMChangeName.prev = FSMChangeSelfMenu, FSMChangeSelfMenu
 
 
 class FSMEnrollment(StatesGroup):
-    FSMCEnrollmentMenu = State()
-    FSMEnrollmentShow = State()
-    FSMEnrollmentNew = State()
-    FSMCEnrollmentDelete = State()
+    FSMCEnrollmentMenu = FSM()
+    FSMEnrollmentShow = FSM()
+    FSMEnrollmentNew = FSM()
+    FSMCEnrollmentDelete = FSM()
+
+    FSMCEnrollmentMenu.prev = FSMMenuState
+    FSMEnrollmentNew.prev = FSMEnrollmentNew
+    FSMCEnrollmentDelete.prev = FSMEnrollmentNew

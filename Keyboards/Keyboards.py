@@ -6,12 +6,12 @@ from aiogram.types import (KeyboardButton,
                            ReplyKeyboardRemove)
 
 
-standart_buttons: list[KeyboardButton] = [
-    KeyboardButton(text="Отмена"),
-    KeyboardButton(text="Назад")
+standart_buttons: list[InlineKeyboardButton] = [
+    InlineKeyboardButton(text="Отмена", callback_data="Cancel"),
+    InlineKeyboardButton(text="Назад", callback_data="Back")
 ]
 
-check_button: KeyboardButton = KeyboardButton(text="Да")
+check_button: InlineKeyboardButton = InlineKeyboardButton(text="Да", callback_data="Yes")
 
 menu_buttons: list[InlineKeyboardButton] = [
     InlineKeyboardButton(text="Новая покупка", callback_data="NewPayment"),
@@ -52,16 +52,23 @@ menu_keyboard = InlineKeyboardBuilder()
 statistic_keyboard = InlineKeyboardBuilder()
 enrollment_keyboard = InlineKeyboardBuilder()
 change_self_keyboard = InlineKeyboardBuilder()
-default_keyboard = ReplyKeyboardBuilder()
-check_keyboard = ReplyKeyboardBuilder()
+default_keyboard = InlineKeyboardBuilder()
+check_keyboard = InlineKeyboardBuilder()
 categories_keyboard = InlineKeyboardBuilder()
 
 
 default_keyboard.row(*standart_buttons)
 [statistic_keyboard.row(button) for button in __statistic_buttons]
-[enrollment_keyboard.add(button) for button in __enrollment_buttons]
-change_self_keyboard.add(*__change_self_buttons)
-check_keyboard.add(*standart_buttons, check_button)
+# statistic_keyboard.add(*standart_buttons)
+
+[enrollment_keyboard.row(button) for button in __enrollment_buttons]
+# enrollment_keyboard.add(*standart_buttons)
+
+[change_self_keyboard.row(button) for button in __change_self_buttons]
+# change_self_keyboard.add(*standart_buttons)
+
+check_keyboard.add(*standart_buttons + [check_button])
 categories_keyboard.row(*__default_categories_buttons[:3])
 categories_keyboard.row(*__default_categories_buttons[3:])
+categories_keyboard.row(*standart_buttons)
 [menu_keyboard.row(button) for button in menu_buttons if button not in menu_keyboard.buttons]

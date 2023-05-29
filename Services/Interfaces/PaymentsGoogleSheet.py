@@ -49,7 +49,7 @@ class PaymentsGoogleSheet:
         if isinstance(payment_uid, int):
             payment_uid = str(payment_uid)
 
-        payments = await self.show_payments(sheet_id)
+        payments = self.show_payments(sheet_id)
         if payments is None:
             return False
         try:
