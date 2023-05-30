@@ -12,14 +12,6 @@ statistic_states = {
 }
 
 
-# @get_statistic_router.callback_query((StateFilter(FSMGetStatistic.FSMGetStatisticMenu)
-#                                                   and lambda call: call.data == "Back")
-#                                      or (lambda call: call.data == "Cancel" and StateFilter(FSMGetStatistic)))
-# async def back_to_main_menu(callback: CallbackQuery, state: FSMContext):
-#     await callback.message.edit_reply_markup(reply_markup=menu_keyboard.as_markup())
-#     await state.set_state(FSMMenuState)
-
-
 @get_statistic_router.callback_query(StateFilter(FSMGetStatistic),
                                      lambda call: call.data == "Back" or call.data == "Cancel")
 async def back_to_statistic_menu(callback: CallbackQuery, state: FSMContext):
@@ -62,9 +54,13 @@ async def delete_payment_by_uid_incorrect(message: Message, state: FSMContext):
 @get_statistic_router.callback_query(StateFilter(FSMGetStatistic.FSMGetByDate))
 async def statistic_by_date(callback: CallbackQuery, state: FSMContext):
     date_from, date_to = parse_dates(callback)
+    only_summary = False
+    if "202" in callback.data:
+        only_summary = True
     result = show_payments(callback.from_user.id, udb,
                            payments_handler,
-                           sort=[payments_handler.DATESORT, (date_from, date_to)])
+                           sort=[payments_handler.DATESORT, (date_from, date_to)],
+                           only_summary=only_summary)
     await callback.message.answer(text=result,
                                   reply_markup=statistic_keyboard.as_markup())
     await state.set_state(FSMGetStatistic.FSMGetStatisticMenu)

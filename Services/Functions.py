@@ -36,7 +36,8 @@ async def add_payment(user: User, data: dict, payments_handler: PaymentsGoogleSh
 def show_payments(user: User | str | int,
                   user_database: UserDatabase,
                   payments_handler: PaymentsGoogleSheet,
-                  sort: None | list[callable, tuple[str | int | datetime.date]] = None) -> str:
+                  sort: None | list[callable, tuple[str | int | datetime.date]] = None,
+                  only_summary: bool = False) -> str:
     sheet_id = user_database.get_user(user).sheet_id if isinstance(user, str | int) else user.sheet_id
     last_row: int = payments_handler.sheetHandler.last_row(sheet_id)
     if last_row:
@@ -46,8 +47,10 @@ def show_payments(user: User | str | int,
             result = payments_handler.sort(sheet_id,
                                            sort[0],
                                            sort[1])
-        if result:
-            return "".join(str(payment) for payment in result) + "\n" + summary(result)
+        if result and not only_summary:
+            return "".join(str(payment) for payment in result) + "\n" + __summary(result)
+        if result and only_summary:
+            return __summary(result)
         else:
             return "Ничего не нашёл :("
     else:
@@ -81,7 +84,7 @@ def parse_total(message: Message | str) -> bool | tuple:
         return start, stop if stop > start else False
 
 
-def summary(list_of_payments: list[Payment]) -> None | str:
+def __summary(list_of_payments: list[Payment]) -> None | str:
     if not list_of_payments:
         return
 
