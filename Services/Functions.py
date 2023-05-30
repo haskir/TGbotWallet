@@ -46,7 +46,10 @@ def show_payments(user: User | str | int,
             result = payments_handler.sort(sheet_id,
                                            sort[0],
                                            sort[1])
-        return "".join(str(payment) for payment in result) if result else "Ничего не нашёл :("
+        if result:
+            return "".join(str(payment) for payment in result) + "\n" + summary(result)
+        else:
+            return "Ничего не нашёл :("
     else:
         return "Ничего не нашёл :("
 
@@ -64,7 +67,7 @@ def __delete_empty_spaces(string: str) -> str:
     return sub(" +", " ", string)
 
 
-def parse_total(message: Message) -> bool | tuple:
+def parse_total(message: Message | str) -> bool | tuple:
     message = __delete_empty_spaces(message.text) if isinstance(message, Message) else __delete_empty_spaces(message)
     try:
         if "-" in message:
@@ -78,6 +81,21 @@ def parse_total(message: Message) -> bool | tuple:
         return start, stop if stop > start else False
 
 
+def summary(list_of_payments: list[Payment]) -> None | str:
+    if not list_of_payments:
+        return
+
+    categories = dict()
+    for payment in list_of_payments:
+        if payment.category not in categories.keys():
+            categories[payment.category] = payment.total
+        else:
+            categories[payment.category] += payment.total
+    print(categories)
+    return "\n".join(f"{key} - {value}" for key, value in categories.items()) + \
+        f"\nПотрачено суммарно: {sum(categories.values())}"
+
+
 def parse_dates(callback: CallbackQuery) -> None | tuple:
     from calendar import monthrange
     from datetime import datetime, timedelta
@@ -86,7 +104,7 @@ def parse_dates(callback: CallbackQuery) -> None | tuple:
         date_to = datetime.today().date()
     elif "2023" == callback.data:
         return datetime.strptime("01.01.2023", "%d.%m.%Y").date(), \
-               datetime.strptime("31.12.2023", "%d.%m.%Y").date()
+            datetime.strptime("31.12.2023", "%d.%m.%Y").date()
     else:
         date_from = datetime.strptime(f'01.{callback.data}.{datetime.today().year}', "%d.%m.%Y").date()
         date_to = datetime.strptime(f'{monthrange(datetime.today().year, int(callback.data))[1]}.{callback.data}.'

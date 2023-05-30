@@ -23,7 +23,7 @@ __enrollment_buttons: list[InlineKeyboardButton] = [
     InlineKeyboardButton(text="Показать историю", callback_data="EnrollmentShow"),
     InlineKeyboardButton(text="Новое пополнение", callback_data="EnrollmentNew"),
     InlineKeyboardButton(text="Удалить пополнение", callback_data="EnrollmentDelete"),
-    InlineKeyboardButton(text="Назад в меню", callback_data="BackToMainMenu"),
+    InlineKeyboardButton(text="Назад", callback_data="BackToMainMenu"),
 ]
 
 __statistic_buttons: list[InlineKeyboardButton] = [
@@ -32,7 +32,7 @@ __statistic_buttons: list[InlineKeyboardButton] = [
     InlineKeyboardButton(text="По категории", callback_data="StatisticByCategory"),
     InlineKeyboardButton(text="По сумме", callback_data="StatisticByTotal"),
     InlineKeyboardButton(text="Удалить покупку", callback_data="DeletePaymentByUid"),
-    InlineKeyboardButton(text="Назад в меню", callback_data="BackToMainMenu"),
+    InlineKeyboardButton(text="Назад", callback_data="BackToMainMenu"),
 ]
 
 __change_self_buttons: list[InlineKeyboardButton] = [
@@ -40,7 +40,6 @@ __change_self_buttons: list[InlineKeyboardButton] = [
     InlineKeyboardButton(text="Изменить имя", callback_data="ChangeSelfName"),
     InlineKeyboardButton(text="Изменить адрес", callback_data="ChangeSelfEmail"),
     InlineKeyboardButton(text="Назад", callback_data="BackToMainMenu"),
-    InlineKeyboardButton(text="Назад в меню", callback_data="BackToMainMenu")
 ]
 
 default_categories: list[str] = ["Еда", "Транспорт", "Жильё", "Одежда", "Электроника", "Прочее"]

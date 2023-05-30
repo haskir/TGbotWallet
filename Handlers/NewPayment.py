@@ -14,12 +14,7 @@ payment_states: dict = {
 }
 
 
-@payment_router.callback_query(lambda call: call.data == "Cancel")
-async def cancel(callback: CallbackQuery, state: FSMContext):
-    await callback.message.answer(text="Главное меню",
-                                  reply_markup=menu_keyboard.as_markup())
-    await state.set_data({})
-    await state.set_state(FSMMenuState)
+
 
 
 @payment_router.callback_query(StateFilter(FSMewPayment.FSMFillCategory),
@@ -73,11 +68,8 @@ async def done(callback: CallbackQuery, state: FSMContext):
 @payment_router.callback_query(StateFilter(FSMewPayment.FSMFillCategory),
                                lambda call: call.data == "Back")
 async def back1(callback: CallbackQuery, state: FSMContext):
+    await callback.message.edit_reply_markup(reply_markup=menu_keyboard.as_markup())
     await state.set_state(FSMMenuState)
-    await callback.message.answer(text=payment_states.get("Cancel")[1],
-                                  reply_markup=ReplyKeyboardRemove())
-    await callback.message.answer(text="Главное меню",
-                                  reply_markup=menu_keyboard.as_markup())
 
 
 @payment_router.callback_query(StateFilter(FSMewPayment.FSMFillMarket),
@@ -110,6 +102,13 @@ async def back5(callback: CallbackQuery, state: FSMContext):
     await callback.message.answer(text=payment_states.get("NewPaymentDescription")[1],
                                   reply_markup=default_keyboard.as_markup())
     await state.set_state(FSMewPayment.FSMFillDescription)
+
+
+@payment_router.callback_query(lambda call: call.data == "Cancel")
+async def cancel(callback: CallbackQuery, state: FSMContext):
+    await state.set_state(FSMMenuState)
+    await state.set_data({})
+    await callback.message.edit_reply_markup(reply_markup=menu_keyboard.as_markup())
 
 
 @payment_router.message(StateFilter(FSMewPayment))

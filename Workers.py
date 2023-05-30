@@ -7,34 +7,17 @@ udb_g_sheet = UdbGoogleSheetHandler(googleHandler=googleHandler, sheetHandler=sh
 payments_handler = PaymentsGoogleSheet(sheetHandler=sheetHandler)
 
 
-# for file in googleHandler.show_files():
-#     googleHandler.delete_file(file["id"])
+def __print_google_files():
+    print("Google files in bot:")
+    for file in googleHandler.show_files():
+        if file["name"] == "EMPTY_VALUE":
+            googleHandler.delete_file(file["id"])
+        print(f"{file}")
 
 
-print("Google files in bot:")
-for file in googleHandler.show_files():
-    if file["name"] == "EMPTY_VALUE":
-        googleHandler.delete_file(file["id"])
-    print(f"{file}")
-
-
-udb_g_sheet.load_from_google(udb)
+if udb_g_sheet.load_from_google(udb):
+    print("Connected to Google!")
 
 
 if __name__ == "__main__":
-    try:
-        user = User({'uid': 1,
-                     'is_bot': False,
-                     'first_name': 'EMPTY_VALUE',
-                     'last_name': 'EMPTY_VALUE',
-                     'username': 'EMPTY_VALUE',
-                     'language_code': 'EMPTY_VALUE',
-                     'email': 'EMPTY_VALUE',
-                     'sheet_id': 'EMPTY_VALUE',
-                     'permission_id': 0})
-
-        input()
-    except Exception as e:
-        print(e)
-    finally:
-        googleHandler.delete_tests()
+    __print_google_files()
