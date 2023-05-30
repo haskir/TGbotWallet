@@ -13,7 +13,7 @@ class Payment:
 
     def __post_init__(self):
         if self.transaction_date is None:
-            self.transaction_date = date.today().strftime("%Y-%m-%d")
+            self.transaction_date = date.today().strftime("%d.%m.%Y")
         self.total = int(self.total) if isinstance(self.total, str) else self.total
 
     def __iter__(self):

@@ -37,18 +37,13 @@ async def change_self_email_correct(message: Message, state: FSMContext):
     await state.set_state(FSMChangeSelf.FSMChangeSelfMenu)
 
 
-@change_self_router.message(StateFilter(FSMChangeSelf.FSMChangeEmail),
-                            ~Text(text="Назад", ignore_case=True),
-                            ~Text(text="Отмена", ignore_case=True))
+@change_self_router.message(StateFilter(FSMChangeSelf.FSMChangeEmail))
 async def change_self_email_incorrect(message: Message, state: FSMContext):
     await message.answer("Что-то не похоже на e-mail, повторите")
     await state.set_state(FSMChangeSelf.FSMChangeEmail)
 
 
-@change_self_router.message(StateFilter(FSMChangeSelf.FSMChangeName),
-                            F.text.isalpha(),
-                            ~Text(text="Назад", ignore_case=True),
-                            ~Text(text="Отмена", ignore_case=True))
+@change_self_router.message(StateFilter(FSMChangeSelf.FSMChangeName), F.text.isalpha())
 async def change_self_name_correct(message: Message, state: FSMContext):
     user = udb.get_user(message.from_user.id)
     user.inner_name = message.text.capitalize()
@@ -58,25 +53,13 @@ async def change_self_name_correct(message: Message, state: FSMContext):
     await state.set_state(FSMChangeSelf.FSMChangeSelfMenu)
 
 
-@change_self_router.message(StateFilter(FSMChangeSelf.FSMChangeName),
-                            ~Text(text="Назад", ignore_case=True),
-                            ~Text(text="Отмена", ignore_case=True))
+@change_self_router.message(StateFilter(FSMChangeSelf.FSMChangeName))
 async def change_self_name_incorrect(message: Message, state: FSMContext):
     await message.answer("Что-то не похоже на имя, повторите")
     await state.set_state(FSMChangeSelf.FSMChangeName)
 
 
-@change_self_router.message(StateFilter(FSMChangeSelf.FSMChangeName),
-                            Text(text="Назад", ignore_case=True))
-async def change_self_name_back(message: Message, state: FSMContext):
-    await message.answer(text="Настройки",
-                         reply_markup=change_self_keyboard.as_markup())
-    await state.set_state(FSMChangeSelf.FSMChangeSelfMenu)
-
-
-@change_self_router.message(StateFilter(FSMChangeSelf.FSMChangeEmail),
-                            Text(text="Назад", ignore_case=True))
-async def change_self_name_back(message: Message, state: FSMContext):
-    await message.answer(text="Настройки",
-                         reply_markup=change_self_keyboard.as_markup())
+@change_self_router.callback_query(StateFilter(FSMChangeSelf), lambda call: "Back" in call.data)
+async def change_self_back(callback: CallbackQuery, state: FSMContext):
+    await callback.message.edit_reply_markup(reply_markup=change_self_keyboard.as_markup())
     await state.set_state(FSMChangeSelf.FSMChangeSelfMenu)

@@ -4,7 +4,7 @@ get_statistic_router: Router = Router()
 
 statistic_states = {
     "ShowEverything": [FSMGetStatistic.FSMGetStatisticMenu, "Что теперь?", statistic_keyboard],
-    "StatisticByDate": [FSMGetStatistic.FSMGetStatisticMenu, "Я ещё не умею сортировать по дате", statistic_keyboard],
+    "StatisticByDate": [FSMGetStatistic.FSMGetByDate, "Сортировка по дате", months_keyboard],
     "StatisticByCategory": [FSMGetStatistic.FSMGetByCategory, "Сортировка по категории", categories_keyboard],
     "StatisticByTotal": [FSMGetStatistic.FSMGetByTotal, "Введите нужный диапазон через тире\n"
                                                         "Например: 0 - 1000", default_keyboard],
@@ -12,18 +12,35 @@ statistic_states = {
 }
 
 
+# @get_statistic_router.callback_query((StateFilter(FSMGetStatistic.FSMGetStatisticMenu)
+#                                                   and lambda call: call.data == "Back")
+#                                      or (lambda call: call.data == "Cancel" and StateFilter(FSMGetStatistic)))
+# async def back_to_main_menu(callback: CallbackQuery, state: FSMContext):
+#     await callback.message.edit_reply_markup(reply_markup=menu_keyboard.as_markup())
+#     await state.set_state(FSMMenuState)
+
+
+@get_statistic_router.callback_query(StateFilter(FSMGetStatistic),
+                                     lambda call: call.data == "Back" or call.data == "Cancel")
+async def back_to_statistic_menu(callback: CallbackQuery, state: FSMContext):
+    await callback.message.answer(text="Получить статистику",
+                                  reply_markup=statistic_keyboard.as_markup())
+    await state.set_state(FSMGetStatistic.FSMGetStatisticMenu)
+
+
 @get_statistic_router.callback_query(StateFilter(FSMGetStatistic.FSMGetStatisticMenu))
 async def statistic_menu(callback: CallbackQuery, state: FSMContext):
+    if callback.data == "ShowEverything":
+        await show_all_payments(callback)
+        return
     await callback.message.answer(text=statistic_states.get(callback.data)[1],
                                   reply_markup=statistic_states.get(callback.data)[2].as_markup())
     await state.set_state(statistic_states.get(callback.data)[0])
 
 
-async def show_all_payments(callback: CallbackQuery, state: FSMContext):
-    await callback.message.answer(text=f"Вот, что я нашёл:\n"
-                                       f"{show_payments(callback.from_user.id, udb, payments_handler)}",
+async def show_all_payments(callback: CallbackQuery):
+    await callback.message.answer(text=f"{show_payments(callback.from_user.id, udb, payments_handler)}",
                                   reply_markup=statistic_keyboard.as_markup())
-    await state.set_state(FSMGetStatistic.FSMGetStatisticMenu)
 
 
 @get_statistic_router.message(StateFilter(FSMGetStatistic.FSMDeletePaymentsByUid), F.text.isdigit())
@@ -44,6 +61,12 @@ async def delete_payment_by_uid_incorrect(message: Message, state: FSMContext):
 
 @get_statistic_router.callback_query(StateFilter(FSMGetStatistic.FSMGetByDate))
 async def statistic_by_date(callback: CallbackQuery, state: FSMContext):
+    date_from, date_to = parse_dates(callback)
+    result = show_payments(callback.from_user.id, udb,
+                           payments_handler,
+                           sort=[payments_handler.DATESORT, (date_from, date_to)])
+    await callback.message.answer(text=result,
+                                  reply_markup=statistic_keyboard.as_markup())
     await state.set_state(FSMGetStatistic.FSMGetStatisticMenu)
 
 
@@ -81,18 +104,3 @@ async def statistic_by_total_correct(message: Message, state: FSMContext):
 async def statistic_by_total_incorrect(message: Message, state: FSMContext):
     await message.answer(text="Моя твоя не понимать, повтори")
     await state.set_state(FSMGetStatistic.FSMGetByTotal)
-
-
-@get_statistic_router.callback_query(StateFilter(FSMGetStatistic.FSMGetStatisticMenu),
-                                     lambda call: call.data == "Back" or call.data == "Cancel")
-async def back_to_main_menu(callback: CallbackQuery, state: FSMContext):
-    await callback.message.edit_reply_markup(reply_markup=menu_keyboard.as_markup())
-    await state.set_state(FSMMenuState)
-
-
-@get_statistic_router.callback_query(StateFilter(FSMGetStatistic),
-                                     lambda call: call.data == "Back")
-async def back_to_statistic_menu(callback: CallbackQuery, state: FSMContext):
-    await callback.message.answer(text="Получить статистику",
-                                  reply_markup=statistic_keyboard.as_markup())
-    await state.set_state(FSMGetStatistic.FSMGetStatisticMenu)

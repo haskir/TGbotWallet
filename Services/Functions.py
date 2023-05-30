@@ -1,4 +1,6 @@
 # from Handlers.imports import *
+import datetime
+
 from aiogram.types import Message, CallbackQuery
 from Services.Dataclasses import *
 from Services.Interfaces.PaymentsGoogleSheet import PaymentsGoogleSheet
@@ -34,19 +36,19 @@ async def add_payment(user: User, data: dict, payments_handler: PaymentsGoogleSh
 def show_payments(user: User | str | int,
                   user_database: UserDatabase,
                   payments_handler: PaymentsGoogleSheet,
-                  # sort = [function_to_sort, (start: int | str, stop: None | int | str)]
-                  sort: None | list[callable, tuple] = None) -> str:
+                  sort: None | list[callable, tuple[str | int | datetime.date]] = None) -> str:
     sheet_id = user_database.get_user(user).sheet_id if isinstance(user, str | int) else user.sheet_id
     last_row: int = payments_handler.sheetHandler.last_row(sheet_id)
     if last_row:
         result = [Payment(*string) for string in payments_handler.show_payments(sheet_id)]
+
         if sort is not None:
             result = payments_handler.sort(sheet_id,
                                            sort[0],
                                            sort[1])
-        return "".join(str(payment) for payment in result)
+        return "".join(str(payment) for payment in result) if result else "Ничего не нашёл :("
     else:
-        return "Пока что пусто\n"
+        return "Ничего не нашёл :("
 
 
 async def delete_payment(user: User | str | int,
@@ -62,7 +64,7 @@ def __delete_empty_spaces(string: str) -> str:
     return sub(" +", " ", string)
 
 
-def parse_total(message: Message):
+def parse_total(message: Message) -> bool | tuple:
     message = __delete_empty_spaces(message.text) if isinstance(message, Message) else __delete_empty_spaces(message)
     try:
         if "-" in message:
@@ -74,3 +76,19 @@ def parse_total(message: Message):
         return False
     else:
         return start, stop if stop > start else False
+
+
+def parse_dates(callback: CallbackQuery) -> None | tuple:
+    from calendar import monthrange
+    from datetime import datetime, timedelta
+    if "Last30" == callback.data:
+        date_from = datetime.today().date() - timedelta(days=31)
+        date_to = datetime.today().date()
+    elif "2023" == callback.data:
+        return datetime.strptime("01.01.2023", "%d.%m.%Y").date(), \
+               datetime.strptime("31.12.2023", "%d.%m.%Y").date()
+    else:
+        date_from = datetime.strptime(f'01.{callback.data}.{datetime.today().year}', "%d.%m.%Y").date()
+        date_to = datetime.strptime(f'{monthrange(datetime.today().year, int(callback.data))[1]}.{callback.data}.'
+                                    f'{datetime.today().year}', "%d.%m.%Y").date()
+    return date_from, date_to

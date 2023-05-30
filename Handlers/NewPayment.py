@@ -32,7 +32,7 @@ async def new_payment_category(callback: CallbackQuery, state: FSMContext):
 
 
 @payment_router.message(StateFilter(FSMewPayment.FSMFillMarket),
-                        lambda text: text.isalpha())
+                        lambda message: message.text.isalpha())
 async def new_payment_total(message: Message, state: FSMContext):
     await message.answer(text=payment_states.get("NewPaymentTotal")[1],
                          reply_markup=default_keyboard.as_markup())

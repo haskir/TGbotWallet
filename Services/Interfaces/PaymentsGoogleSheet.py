@@ -5,11 +5,11 @@ from datetime import datetime, date
 
 class PaymentsGoogleSheet:
     @staticmethod
-    def __date_sort(payment: Payment, start: str, stop: str) -> bool:
-        def convert(d: str) -> datetime:
-            return datetime.strptime(d, "%d.%m.%Y")
+    def __date_sort(payment: Payment, start: date, stop: date) -> bool:
+        def convert(d: str) -> datetime.date:
+            return datetime.strptime(d, "%d.%m.%Y").date()
 
-        return convert(start) <= convert(payment.transaction_date) <= convert(stop)
+        return start <= convert(payment.transaction_date) <= stop
 
     @staticmethod
     def __total_sort(payment: Payment, start: int, stop: int) -> bool:
