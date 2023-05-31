@@ -4,12 +4,11 @@ from Handlers import *
 import os
 import dotenv
 
-dotenv.load_dotenv()
 
-TGbotWallet_token: str = os.getenv('TGbotWallet_token')
 
 # Создаем объекты бота и диспетчера
-bot: Bot = Bot(token=TGbotWallet_token)
+from Workers import bot
+
 storage: MemoryStorage = MemoryStorage()
 dp: Dispatcher = Dispatcher(bot=bot, storage=storage, )
 dp.include_router(profile_router)

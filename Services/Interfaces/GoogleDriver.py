@@ -121,7 +121,6 @@ class GoogleDriver:
             done = False
             while done is False:
                 status, done = downloader.next_chunk()
-                print(F'Download {int(status.progress() * 100)}.')
 
         except HttpError as error:
             print(F'An error occurred: {error}')

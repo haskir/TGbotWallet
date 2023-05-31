@@ -1,5 +1,6 @@
-import bot
+from Workers import bot
 from .imports import *
+from aiogram.types import BufferedInputFile
 
 get_statistic_router: Router = Router()
 
@@ -23,7 +24,6 @@ async def back_to_statistic_menu(callback: CallbackQuery, state: FSMContext):
 
 @get_statistic_router.callback_query(StateFilter(FSMGetStatistic.FSMGetStatisticMenu))
 async def statistic_menu(callback: CallbackQuery, state: FSMContext):
-    bot.FSM
     if callback.data == "ShowEverything":
         await show_all_payments(callback)
         return
@@ -33,10 +33,11 @@ async def statistic_menu(callback: CallbackQuery, state: FSMContext):
 
 
 async def show_all_payments(callback: CallbackQuery):
-    # ДОБАВИТЬ bot.SEND_DOCUMENTl
-    await callback.message.answer(text="Держи :)",
-                                  file=googleHandler.download_sheet(udb.get_user(callback.from_user.id).sheet_id),
-                                  reply_markup=statistic_keyboard.as_markup())
+    file_in_bytes = googleHandler.download_sheet(udb.get_user(callback.from_user.id).sheet_id)
+    file = BufferedInputFile(file_in_bytes, "Табличка.xlsx")
+    await bot.send_document(chat_id=callback.message.chat.id,
+                            document=file,
+                            reply_markup=statistic_keyboard.as_markup())
 
 
 @get_statistic_router.message(StateFilter(FSMGetStatistic.FSMDeletePaymentsByUid), F.text.isdigit())
