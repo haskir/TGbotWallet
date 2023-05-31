@@ -49,6 +49,8 @@ months = [["За последние 30 дней", "Last30"],
           ["Июнь", 6], ["Июль", 7], ["Август", 8],
           ["Сентябрь", 9], ["Октябрь", 10], ["Ноябрь", 11],
           ["2023", 2023]]
+enrollments: list[str] = ["Зарплата", "Cashback", "Прочее"]
+
 
 __months_buttons: list[InlineKeyboardButton] = [InlineKeyboardButton(text=month[0],
                                                                      callback_data=month[1])

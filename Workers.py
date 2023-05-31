@@ -20,4 +20,9 @@ if udb_g_sheet.load_from_google(udb):
 
 
 if __name__ == "__main__":
-    __print_google_files()
+    my_file_id = "1dqTL3Q31stG5R09Nv3iL6_UW9g0z9FjuCszvQbn1JPQ"
+    file_d = googleHandler.download_sheet(my_file_id)
+    if file_d:
+        print(file_d)
+        with open("test_download.xlsx", "wb") as file:
+            file.write(file_d)

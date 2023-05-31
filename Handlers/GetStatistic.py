@@ -1,3 +1,4 @@
+import bot
 from .imports import *
 
 get_statistic_router: Router = Router()
@@ -22,6 +23,7 @@ async def back_to_statistic_menu(callback: CallbackQuery, state: FSMContext):
 
 @get_statistic_router.callback_query(StateFilter(FSMGetStatistic.FSMGetStatisticMenu))
 async def statistic_menu(callback: CallbackQuery, state: FSMContext):
+    bot.FSM
     if callback.data == "ShowEverything":
         await show_all_payments(callback)
         return
@@ -31,7 +33,9 @@ async def statistic_menu(callback: CallbackQuery, state: FSMContext):
 
 
 async def show_all_payments(callback: CallbackQuery):
-    await callback.message.answer(text=f"{show_payments(callback.from_user.id, udb, payments_handler)}",
+    # ДОБАВИТЬ bot.SEND_DOCUMENTl
+    await callback.message.answer(text="Держи :)",
+                                  file=googleHandler.download_sheet(udb.get_user(callback.from_user.id).sheet_id),
                                   reply_markup=statistic_keyboard.as_markup())
 
 
@@ -69,7 +73,6 @@ async def statistic_by_date(callback: CallbackQuery, state: FSMContext):
 @get_statistic_router.callback_query(StateFilter(FSMGetStatistic),
                                      lambda callback: callback.data in default_categories)
 async def statistic_by_category(callback: CallbackQuery, state: FSMContext):
-    print(1)
     result = show_payments(
         user=callback.from_user.id,
         user_database=udb,
@@ -90,7 +93,6 @@ async def statistic_by_total_correct(message: Message, state: FSMContext):
         payments_handler=payments_handler,
         sort=[payments_handler.TOTALSORT, parse_total(message)]
     )
-    print(f"{result = }")
     await message.answer(text=f"Вот, что я смог найти\n{result}\nЧто дальше?",
                          reply_markup=statistic_keyboard.as_markup())
     await state.set_state(FSMGetStatistic.FSMGetStatisticMenu)

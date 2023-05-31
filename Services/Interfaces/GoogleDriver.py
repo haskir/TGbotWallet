@@ -106,10 +106,31 @@ class GoogleDriver:
             if "test" == file["name"]:
                 await self.delete_file(file["id"])
 
+    def download_sheet(self, file_od: str):
+        from googleapiclient.http import MediaIoBaseDownload
+        import io
+        try:
+            # create drive api client
+            file_id = file_od
+            # pylint: disable=maybe-no-member
+            mime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            request = self.service_inner.files().export_media(fileId=file_id,
+                                                              mimeType=mime)
+            file = io.BytesIO()
+            downloader = MediaIoBaseDownload(file, request)
+            done = False
+            while done is False:
+                status, done = downloader.next_chunk()
+                print(F'Download {int(status.progress() * 100)}.')
+
+        except HttpError as error:
+            print(F'An error occurred: {error}')
+            file = None
+
+        return file.getvalue()
+
 
 if __name__ == '__main__':
     service = GoogleDriver()
-    for file in service.show_files():
-        if "test" == file["name"]:
-            service.delete_file(file["id"])
-    service.delete_tests()
+    my_file_id = "1dqTL3Q31stG5R09Nv3iL6_UW9g0z9FjuCszvQbn1JPQ"
+    service.download_sheet(my_file_id)

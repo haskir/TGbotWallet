@@ -48,7 +48,7 @@ def show_payments(user: User | str | int,
                                            sort[0],
                                            sort[1])
         if result and not only_summary:
-            return "".join(str(payment) for payment in result) + "\n" + __summary(result)
+            return __cut_big_output("".join(str(payment) for payment in result) + "\n" + __summary(result))
         if result and only_summary:
             return __summary(result)
         else:
@@ -94,9 +94,8 @@ def __summary(list_of_payments: list[Payment]) -> None | str:
             categories[payment.category] = payment.total
         else:
             categories[payment.category] += payment.total
-    print(categories)
     return "\n".join(f"{key} - {value}" for key, value in categories.items()) + \
-        f"\nПотрачено суммарно: {sum(categories.values())}"
+           f"\nПотрачено суммарно: {sum(categories.values())}"
 
 
 def parse_dates(callback: CallbackQuery) -> None | tuple:
@@ -113,3 +112,7 @@ def parse_dates(callback: CallbackQuery) -> None | tuple:
         date_to = datetime.strptime(f'{monthrange(datetime.today().year, int(callback.data))[1]}.{callback.data}.'
                                     f'{datetime.today().year}', "%d.%m.%Y").date()
     return date_from, date_to
+
+
+def __cut_big_output(string: str) -> str:
+    return string[-3900::]
