@@ -1,4 +1,4 @@
-import os
+from Workers import bot
 
 from .imports import *
 
@@ -16,8 +16,9 @@ states = {
 async def go_from_menu_to(callback: CallbackQuery, state: FSMContext):
     if callback.data in states.keys():
         await state.set_state(states.get(callback.data)[0])
-        await callback.message.edit_reply_markup(reply_markup=states.get(callback.data)[2].as_markup(
-            resize_keyboard=True))
+        await bot.edit_message_text(text=states.get(callback.data)[1],
+                                    message_id=callback.message.message_id,
+                                    reply_markup=states.get(callback.data)[2].as_markup())
 
 
 @menu_router.message(~StateFilter(default_state, FSMMenuState), Text(text="Отмена", ignore_case=True))

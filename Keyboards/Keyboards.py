@@ -27,7 +27,7 @@ __enrollment_buttons: list[InlineKeyboardButton] = [
 ]
 
 __statistic_buttons: list[InlineKeyboardButton] = [
-    InlineKeyboardButton(text="Показать всё", callback_data="ShowEverything"),
+    InlineKeyboardButton(text="Скачать всю таблицу", callback_data="ShowEverything"),
     InlineKeyboardButton(text="По датам", callback_data="StatisticByDate"),
     InlineKeyboardButton(text="По категории", callback_data="StatisticByCategory"),
     InlineKeyboardButton(text="По сумме", callback_data="StatisticByTotal"),

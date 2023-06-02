@@ -34,7 +34,7 @@ async def statistic_menu(callback: CallbackQuery, state: FSMContext):
 
 async def show_all_payments(callback: CallbackQuery):
     file_in_bytes = googleHandler.download_sheet(udb.get_user(callback.from_user.id).sheet_id)
-    file = BufferedInputFile(file_in_bytes, "Табличка.xlsx")
+    file = BufferedInputFile(file_in_bytes, f"{callback.from_user.username}.xlsx")
     await bot.send_document(chat_id=callback.message.chat.id,
                             document=file,
                             reply_markup=statistic_keyboard.as_markup())

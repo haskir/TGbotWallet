@@ -106,7 +106,7 @@ class GoogleDriver:
             if "test" == file["name"]:
                 await self.delete_file(file["id"])
 
-    def download_sheet(self, file_od: str):
+    async def download_sheet(self, file_od: str):
         from googleapiclient.http import MediaIoBaseDownload
         import io
         try:
@@ -120,7 +120,7 @@ class GoogleDriver:
             downloader = MediaIoBaseDownload(file, request)
             done = False
             while done is False:
-                status, done = downloader.next_chunk()
+                status, done = await downloader.next_chunk()
 
         except HttpError as error:
             print(F'An error occurred: {error}')

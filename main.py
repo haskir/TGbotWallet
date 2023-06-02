@@ -1,10 +1,6 @@
 import asyncio
 from aiogram.types.error_event import ErrorEvent
 from Handlers import *
-import os
-import dotenv
-
-
 
 # Создаем объекты бота и диспетчера
 from Workers import bot
@@ -29,6 +25,19 @@ async def back_to_menu(callback: CallbackQuery, state: FSMContext):
 @dp.errors()
 async def back_to_menu_error(error: ErrorEvent, state: FSMContext):
     print(error)
+
+
+# reload_router = Router()
+#
+#
+# @reload_router.callback_query()
+# async def on_reboot_any_button(callback: CallbackQuery, state: FSMContext):
+#     await callback.message.answer(text="У нас что-то пошло не так",
+#                                   reply_markup=menu_keyboard.as_markup())
+#     await state.set_state(FSMMenuState)
+#
+#
+# dp.include_router(reload_router)
 
 
 async def main():
