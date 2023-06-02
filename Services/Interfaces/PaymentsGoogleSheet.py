@@ -56,11 +56,11 @@ class PaymentsGoogleSheet:
             for key, value in enumerate(pay.uid for pay in payments):
                 # print(f"{payment_uid=}, {key=}, {value=}")
                 if value == payment_uid:
-                    print(key)
                     await self.sheetHandler.delete_row(sheet_id, start=key, end=key + 1)
                     return True
         except IndexError:
             ...
+        return False
 
     def sort(self, sheet_id: str, sort_type: callable, goal: tuple) -> list[Payment]:
         return [pay for pay in self.show_payments(sheet_id) if sort_type(pay, *goal)]

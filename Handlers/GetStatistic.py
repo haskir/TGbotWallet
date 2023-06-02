@@ -1,6 +1,7 @@
 from Workers import bot
 from .imports import *
 from aiogram.types import BufferedInputFile
+from asyncio import sleep
 
 get_statistic_router: Router = Router()
 
@@ -17,8 +18,10 @@ statistic_states = {
 @get_statistic_router.callback_query(StateFilter(FSMGetStatistic),
                                      lambda call: call.data == "Back" or call.data == "Cancel")
 async def back_to_statistic_menu(callback: CallbackQuery, state: FSMContext):
-    await callback.message.answer(text="Получить статистику",
-                                  reply_markup=statistic_keyboard.as_markup())
+    await bot.edit_message_text(text="Получить статистику",
+                                message_id=callback.message.message_id,
+                                chat_id=callback.message.chat.id,
+                                reply_markup=statistic_keyboard.as_markup())
     await state.set_state(FSMGetStatistic.FSMGetStatisticMenu)
 
 
@@ -27,33 +30,53 @@ async def statistic_menu(callback: CallbackQuery, state: FSMContext):
     if callback.data == "ShowEverything":
         await show_all_payments(callback)
         return
-    await callback.message.answer(text=statistic_states.get(callback.data)[1],
-                                  reply_markup=statistic_states.get(callback.data)[2].as_markup())
+
+    await bot.edit_message_text(text=statistic_states.get(callback.data)[1],
+                                message_id=callback.message.message_id,
+                                chat_id=callback.message.chat.id,
+                                reply_markup=statistic_states.get(callback.data)[2].as_markup())
     await state.set_state(statistic_states.get(callback.data)[0])
 
 
 async def show_all_payments(callback: CallbackQuery):
-    file_in_bytes = googleHandler.download_sheet(udb.get_user(callback.from_user.id).sheet_id)
-    file = BufferedInputFile(file_in_bytes, f"{callback.from_user.username}.xlsx")
+    file_in_bytes = await googleHandler.download_sheet(udb.get_user(callback.from_user.id).sheet_id)
+    user_sheet = BufferedInputFile(file_in_bytes, f"{callback.from_user.username}.xlsx")
     await bot.send_document(chat_id=callback.message.chat.id,
-                            document=file,
-                            reply_markup=statistic_keyboard.as_markup())
+                            document=user_sheet)
+    await callback.message.answer(text="Тут все ваши траты!",
+                                  reply_markup=statistic_keyboard.as_markup())
 
 
 @get_statistic_router.message(StateFilter(FSMGetStatistic.FSMDeletePaymentsByUid), F.text.isdigit())
 async def delete_payment_by_uid_correct(message: Message, state: FSMContext):
-    await message.answer(text=f"Удаляем...\n")
-    if await delete_payment(message.from_user.id, udb, payments_handler, message.text):
-        await state.set_state(FSMGetStatistic.FSMGetStatisticMenu)
-        await message.answer(text="Успешно удалено! Что дальше?",
-                             reply_markup=statistic_keyboard.as_markup())
-    else:
-        await message.answer(text="Такого id нет в ваших покупках, попробуйте ещё раз!")
+    bot_message = await message.answer(text=f"Удаляем...\n")
+    while True:
+        for k in range(1, 4):
+            await bot.edit_message_text(text="Удаляем" + "." * k,
+                                        message_id=bot_message.message_id,
+                                        chat_id=bot_message.chat.id)
+            await sleep(1)
+        if await delete_payment(message.from_user.id, udb, payments_handler, message.text):
+            await state.set_state(FSMGetStatistic.FSMGetStatisticMenu)
+            await bot.edit_message_text(text="Успешно удалено!",
+                                        message_id=bot_message.message_id,
+                                        chat_id=bot_message.chat.id,
+                                        reply_markup=statistic_keyboard.as_markup())
+            return
+        else:
+            await bot.edit_message_text(text="Такого id нет в ваших покупках, попробуйте ещё раз!",
+                                        message_id=bot_message.message_id,
+                                        chat_id=bot_message.chat.id,
+                                        reply_markup=default_keyboard.as_markup())
+            return
 
 
 @get_statistic_router.message(StateFilter(FSMGetStatistic.FSMDeletePaymentsByUid))
 async def delete_payment_by_uid_incorrect(message: Message, state: FSMContext):
-    await message.answer(text=f"Вы ввели что-то непонятное, пожалуйста, введите число")
+    await bot.delete_message(message_id=message.message_id,
+                             chat_id=message.chat.id)
+    await message.answer(text="Вы ввели что-то непонятное, пожалуйста, введите число",
+                         reply_markup=default_keyboard.as_markup())
 
 
 @get_statistic_router.callback_query(StateFilter(FSMGetStatistic.FSMGetByDate))
@@ -80,8 +103,10 @@ async def statistic_by_category(callback: CallbackQuery, state: FSMContext):
         payments_handler=payments_handler,
         sort=[payments_handler.CATEGORYSORT, (callback.data,)]
     )
-    await callback.message.answer(text=f"Вот, что я смог найти:\n{result}\nЧто дальше?",
-                                  reply_markup=statistic_keyboard.as_markup())
+    await bot.edit_message_text(text=f"Вот, что я смог найти:\n{result}\nЧто дальше?",
+                                message_id=callback.message.message_id,
+                                chat_id=callback.message.chat.id,
+                                reply_markup=statistic_keyboard.as_markup())
     await state.set_state(FSMGetStatistic.FSMGetStatisticMenu)
 
 

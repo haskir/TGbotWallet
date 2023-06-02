@@ -1,5 +1,6 @@
 from .imports import *
 from Services.Functions import *
+from Workers import bot
 
 payment_router: Router = Router()
 
@@ -14,15 +15,14 @@ payment_states: dict = {
 }
 
 
-
-
-
 @payment_router.callback_query(StateFilter(FSMewPayment.FSMFillCategory),
                                lambda callback: callback.data in default_categories)
 async def new_payment_category(callback: CallbackQuery, state: FSMContext):
-    await callback.message.answer(text=payment_states.get("NewPaymentMarket")[1],
-                                  reply_markup=default_keyboard.as_markup())
     await state.update_data({"category": callback.data})
+    await bot.edit_message_text(text=payment_states.get("NewPaymentMarket")[1],
+                                message_id=callback.message.message_id,
+                                chat_id=callback.message.chat.id,
+                                reply_markup=default_keyboard.as_markup())
     await state.set_state(FSMewPayment.FSMFillMarket)
 
 
@@ -57,8 +57,10 @@ async def new_payment_check(message: Message, state: FSMContext):
 @payment_router.callback_query(StateFilter(FSMewPayment.FSMCheck),
                                lambda call: call.data == "Yes")
 async def done(callback: CallbackQuery, state: FSMContext):
-    await callback.message.answer("Главное меню",
-                                  reply_markup=menu_keyboard.as_markup())
+    await bot.edit_message_text(text="Главное меню",
+                                message_id=callback.message.message_id,
+                                chat_id=callback.message.chat.id,
+                                reply_markup=menu_keyboard.as_markup())
     result = await state.get_data()
     await state.set_data({})
     await add_payment(udb.get_user(callback.from_user.id), result, payments_handler)
@@ -75,32 +77,40 @@ async def back1(callback: CallbackQuery, state: FSMContext):
 @payment_router.callback_query(StateFilter(FSMewPayment.FSMFillMarket),
                                lambda call: call.data == "Back")
 async def back2(callback: CallbackQuery, state: FSMContext):
-    await callback.message.answer(text=payment_states.get("NewPaymentCategory")[1],
-                                  reply_markup=categories_keyboard.as_markup())
+    await bot.edit_message_text(text=payment_states.get("NewPaymentCategory")[1],
+                                message_id=callback.message.message_id,
+                                chat_id=callback.message.chat.id,
+                                reply_markup=categories_keyboard.as_markup())
     await state.set_state(FSMewPayment.FSMFillCategory)
 
 
 @payment_router.callback_query(StateFilter(FSMewPayment.FSMFillTotal),
                                lambda call: call.data == "Back")
 async def back3(callback: CallbackQuery, state: FSMContext):
-    await callback.message.answer(text=payment_states.get("NewPaymentMarket")[1],
-                                  reply_markup=default_keyboard.as_markup())
+    await bot.edit_message_text(text=payment_states.get("NewPaymentMarket")[1],
+                                message_id=callback.message.message_id,
+                                chat_id=callback.message.chat.id,
+                                reply_markup=default_keyboard.as_markup())
     await state.set_state(FSMewPayment.FSMFillMarket)
 
 
 @payment_router.callback_query(StateFilter(FSMewPayment.FSMFillDescription),
                                lambda call: call.data == "Back")
 async def back4(callback: CallbackQuery, state: FSMContext):
-    await callback.message.answer(text=payment_states.get("NewPaymentTotal")[1],
-                                  reply_markup=default_keyboard.as_markup())
+    await bot.edit_message_text(text=payment_states.get("NewPaymentTotal")[1],
+                                message_id=callback.message.message_id,
+                                chat_id=callback.message.chat.id,
+                                reply_markup=default_keyboard.as_markup())
     await state.set_state(FSMewPayment.FSMFillTotal)
 
 
 @payment_router.callback_query(StateFilter(FSMewPayment.FSMCheck),
                                lambda call: call.data == "Back")
 async def back5(callback: CallbackQuery, state: FSMContext):
-    await callback.message.answer(text=payment_states.get("NewPaymentDescription")[1],
-                                  reply_markup=default_keyboard.as_markup())
+    await bot.edit_message_text(text=payment_states.get("NewPaymentDescription")[1],
+                                message_id=callback.message.message_id,
+                                chat_id=callback.message.chat.id,
+                                reply_markup=default_keyboard.as_markup())
     await state.set_state(FSMewPayment.FSMFillDescription)
 
 
@@ -108,7 +118,10 @@ async def back5(callback: CallbackQuery, state: FSMContext):
 async def cancel(callback: CallbackQuery, state: FSMContext):
     await state.set_state(FSMMenuState)
     await state.set_data({})
-    await callback.message.edit_reply_markup(reply_markup=menu_keyboard.as_markup())
+    await bot.edit_message_text(text="Главное меню",
+                                message_id=callback.message.message_id,
+                                chat_id=callback.message.chat.id,
+                                reply_markup=menu_keyboard.as_markup())
 
 
 @payment_router.message(StateFilter(FSMewPayment))

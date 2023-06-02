@@ -120,7 +120,7 @@ class GoogleDriver:
             downloader = MediaIoBaseDownload(file, request)
             done = False
             while done is False:
-                status, done = await downloader.next_chunk()
+                status, done = downloader.next_chunk()
 
         except HttpError as error:
             print(F'An error occurred: {error}')

@@ -1,4 +1,8 @@
+import asyncio
+import time
+
 from .imports import *
+from Workers import bot
 
 registration_router: Router = Router()
 
@@ -13,7 +17,7 @@ async def process_start_command(message: Message, state: FSMContext):
         await message.answer(text="Привет, этот бот - твой личный кошелёк\nЧтобы начать введи своё имя")
         await state.set_state(FSMFillForm.fill_name)
     else:
-        await message.answer(text="Мы тебя помним!", reply_markup=menu_keyboard.as_markup())
+        await message.answer(text="Главное меню", reply_markup=menu_keyboard.as_markup())
         await state.set_state(FSMMenuState)
 
 
