@@ -70,7 +70,10 @@ async def done(callback: CallbackQuery, state: FSMContext):
 @payment_router.callback_query(StateFilter(FSMewPayment.FSMFillCategory),
                                lambda call: call.data == "Back")
 async def back1(callback: CallbackQuery, state: FSMContext):
-    await callback.message.edit_reply_markup(reply_markup=menu_keyboard.as_markup())
+    await bot.edit_message_text(text="Главное меню",
+                                message_id=callback.message.message_id,
+                                chat_id=callback.message.chat.id,
+                                reply_markup=menu_keyboard.as_markup())
     await state.set_state(FSMMenuState)
 
 
