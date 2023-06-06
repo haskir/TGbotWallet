@@ -9,7 +9,7 @@ payment_states: dict = {
     "NewPaymentMarket": [FSMewPayment.FSMFillMarket, "Введите название магазина"],
     "NewPaymentTotal": [FSMewPayment.FSMFillTotal, "Сколько потратили?"],
     "NewPaymentDescription": [FSMewPayment.FSMFillDescription, "Введите описание"],
-    "NewPaymentCheck": [FSMewPayment.FSMCheck, "Всё верно?"],
+    "NewPaymentCheck": [FSMewPayment.FSMCheck, "Всё верно?\n"],
     "MainMenu": [FSMMenuState, "Готово!"],
     "Cancel": [FSMewPayment.FSMFillCategory, "Ну, назад так назад"],
 }
@@ -46,10 +46,8 @@ async def new_payment_description(message: Message, state: FSMContext):
 @payment_router.message(StateFilter(FSMewPayment.FSMFillDescription))
 async def new_payment_check(message: Message, state: FSMContext):
     await state.update_data({"Description": message.text})
-    await message.answer(text=payment_states.get("NewPaymentCheck")[1],
-                         reply_markup=default_keyboard.as_markup())
     result = await state.get_data()
-    await message.answer(text='\n'.join(result.values()),
+    await message.answer(text=payment_states.get("NewPaymentCheck")[1] + '\n'.join(result.values()),
                          reply_markup=check_keyboard.as_markup())
     await state.set_state(FSMewPayment.FSMCheck)
 

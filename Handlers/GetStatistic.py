@@ -30,7 +30,6 @@ async def statistic_menu(callback: CallbackQuery, state: FSMContext):
     if callback.data == "ShowEverything":
         await show_all_payments(callback)
         return
-
     await bot.edit_message_text(text=statistic_states.get(callback.data)[1],
                                 message_id=callback.message.message_id,
                                 chat_id=callback.message.chat.id,
@@ -89,8 +88,10 @@ async def statistic_by_date(callback: CallbackQuery, state: FSMContext):
                            payments_handler,
                            sort=[payments_handler.DATESORT, (date_from, date_to)],
                            only_summary=only_summary)
-    await callback.message.answer(text=result,
-                                  reply_markup=statistic_keyboard.as_markup())
+    await bot.edit_message_text(text=f"Вот, что я смог найти:\n{result}",
+                                message_id=callback.message.message_id,
+                                chat_id=callback.message.chat.id,
+                                reply_markup=statistic_keyboard.as_markup())
     await state.set_state(FSMGetStatistic.FSMGetStatisticMenu)
 
 
