@@ -43,7 +43,7 @@ __change_self_buttons: list[InlineKeyboardButton] = [
 ]
 
 default_categories: list[str] = ["Еда", "Транспорт", "Жильё", "Одежда", "Электроника", "Прочее"]
-months = [["За последние 30 дней", "Last30"],
+months = [["За неделю", "Last7"], ["За последние 30 дней", "Last30"],
           ["Декабрь", 12], ["Январь", 1], ["Февраль", 2],
           ["Март", 3], ["Апрель", 4], ["Май", 5],
           ["Июнь", 6], ["Июль", 7], ["Август", 8],
@@ -73,8 +73,8 @@ default_keyboard.row(*standart_buttons)
 
 [change_self_keyboard.row(button) for button in __change_self_buttons]
 
-months_keyboard.row(__months_buttons[0])
-months_keyboard.row(*__months_buttons[1::], width=3)
+months_keyboard.row(*__months_buttons[0:2:])
+months_keyboard.row(*__months_buttons[2::], width=3)
 months_keyboard.row(*standart_buttons)
 
 

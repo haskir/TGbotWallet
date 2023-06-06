@@ -101,8 +101,9 @@ def __summary(list_of_payments: list[Payment]) -> None | str:
 def parse_dates(callback: CallbackQuery) -> None | tuple:
     from calendar import monthrange
     from datetime import datetime, timedelta
-    if "Last30" == callback.data:
-        date_from = datetime.today().date() - timedelta(days=31)
+    if "Last" in callback.data:
+        days = int(callback.data[4::])
+        date_from = datetime.today().date() - timedelta(days=days)
         date_to = datetime.today().date()
     elif "2023" == callback.data:
         return datetime.strptime("01.01.2023", "%d.%m.%Y").date(), \
