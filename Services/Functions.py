@@ -94,7 +94,7 @@ def __summary(list_of_payments: list[Payment]) -> None | str:
             categories[payment.category] = payment.total
         else:
             categories[payment.category] += payment.total
-    return "\n".join(f"{key} - {value}" for key, value in categories.items()) + \
+    return "\n".join(f"{key}: {value}" for key, value in categories.items()) + \
            f"\nПотрачено суммарно: {sum(categories.values())}"
 
 

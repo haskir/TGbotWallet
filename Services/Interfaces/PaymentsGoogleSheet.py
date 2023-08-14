@@ -14,7 +14,7 @@ class PaymentsGoogleSheet:
     @staticmethod
     def __total_sort(payment: Payment, start: int, stop: int) -> bool:
         # print(f"{payment=}\n{start=}\n{stop=}")
-        return start <= payment.total <= stop
+        return start <= abs(payment.total) <= stop
 
     @staticmethod
     def __category_sort(payment: Payment, category: str, stop=None) -> bool:

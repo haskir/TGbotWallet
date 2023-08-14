@@ -4,7 +4,7 @@ import os
 from aiogram import Bot
 
 dotenv.load_dotenv()
-TGbotWallet_token: str = os.getenv('TGbotWallet_token')
+TGbotWallet_token: str = os.getenv('TELEGTAM_WALLET_BOT')
 bot: Bot = Bot(token=TGbotWallet_token)
 udb = UserDatabase()
 googleHandler = GoogleDriver(path_to_ini="./cred.ini")
@@ -19,6 +19,11 @@ def __print_google_files():
         if file["name"] == "EMPTY_VALUE":
             googleHandler.delete_file(file["id"])
         print(f"{file}")
+
+
+def give_permission(email: str):
+    for file in googleHandler.show_files():
+        googleHandler.create_permission(file["id"], email, "writer")
 
 
 if udb_g_sheet.load_from_google(udb):

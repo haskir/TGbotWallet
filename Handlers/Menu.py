@@ -6,7 +6,7 @@ menu_router: Router = Router()
 
 states = {
     "NewPayment": [FSMewPayment.FSMFillCategory, "Введите категорию траты", categories_keyboard],
-    "NewEnrollment": [FSMEnrollment.FSMCEnrollmentMenu, "Тут пока ничего не работает", enrollment_keyboard],
+    "NewEnrollment": [FSMEnrollment.FSMFillCategory, "Выберите категорию пополнения", enrollment_keyboard],
     "GetStatistic": [FSMGetStatistic.FSMGetStatisticMenu, "Статистика", statistic_keyboard],
     "ChangeSelf": [FSMChangeSelf.FSMChangeSelfMenu, "Профиль", change_self_keyboard]
 }

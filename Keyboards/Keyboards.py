@@ -1,9 +1,4 @@
-from aiogram.utils.keyboard import (ReplyKeyboardBuilder, KeyboardButton,
-                                    InlineKeyboardBuilder, InlineKeyboardButton)
-from aiogram.types import (KeyboardButton,
-                           Message,
-                           ReplyKeyboardMarkup,
-                           ReplyKeyboardRemove)
+from aiogram.utils.keyboard import (InlineKeyboardBuilder, InlineKeyboardButton)
 
 standart_buttons: list[InlineKeyboardButton] = [
     InlineKeyboardButton(text="Отмена", callback_data="Cancel"),
@@ -19,12 +14,12 @@ menu_buttons: list[InlineKeyboardButton] = [
     InlineKeyboardButton(text="Профиль", callback_data="ChangeSelf"),
 ]
 
-__enrollment_buttons: list[InlineKeyboardButton] = [
-    InlineKeyboardButton(text="Показать историю", callback_data="EnrollmentShow"),
-    InlineKeyboardButton(text="Новое пополнение", callback_data="EnrollmentNew"),
-    InlineKeyboardButton(text="Удалить пополнение", callback_data="EnrollmentDelete"),
-    InlineKeyboardButton(text="Назад", callback_data="BackToMainMenu"),
-]
+# __enrollment_buttons: list[InlineKeyboardButton] = [
+#     InlineKeyboardButton(text="Показать историю", callback_data="EnrollmentShow"),
+#     InlineKeyboardButton(text="Новое пополнение", callback_data="EnrollmentNew"),
+#     InlineKeyboardButton(text="Удалить пополнение", callback_data="EnrollmentDelete"),
+#     InlineKeyboardButton(text="Назад", callback_data="BackToMainMenu"),
+# ]
 
 __statistic_buttons: list[InlineKeyboardButton] = [
     InlineKeyboardButton(text="Скачать всю таблицу", callback_data="ShowEverything"),
@@ -43,20 +38,32 @@ __change_self_buttons: list[InlineKeyboardButton] = [
 ]
 
 default_categories: list[str] = ["Еда", "Транспорт", "Жильё", "Одежда", "Электроника", "Прочее"]
-months = [["За неделю", "Last7"], ["За последние 30 дней", "Last30"],
-          ["Декабрь", 12], ["Январь", 1], ["Февраль", 2],
-          ["Март", 3], ["Апрель", 4], ["Май", 5],
-          ["Июнь", 6], ["Июль", 7], ["Август", 8],
-          ["Сентябрь", 9], ["Октябрь", 10], ["Ноябрь", 11],
-          ["2023", 2023]]
-enrollments: list[str] = ["Зарплата", "Cashback", "Прочее"]
 
+months = [
+    ["За неделю", "Last7"], ["За последние 30 дней", "Last30"],
+    ["Декабрь", 12], ["Январь", 1], ["Февраль", 2],
+    ["Март", 3], ["Апрель", 4], ["Май", 5],
+    ["Июнь", 6], ["Июль", 7], ["Август", 8],
+    ["Сентябрь", 9], ["Октябрь", 10], ["Ноябрь", 11],
+    ["2023", 2023]
+]
 
-__months_buttons: list[InlineKeyboardButton] = [InlineKeyboardButton(text=month[0],
-                                                                     callback_data=month[1])
-                                                for i, month in enumerate(months)]
-__default_categories_buttons: list[InlineKeyboardButton] = [InlineKeyboardButton(text=category, callback_data=category)
-                                                            for category in default_categories]
+enrollment_categories: list[str] = ["Salary", "Cashback", "Other"]
+__enrollment_categories_buttons: list[InlineKeyboardButton] = [
+    InlineKeyboardButton(text="Зарплата", callback_data="Salary"),
+    InlineKeyboardButton(text="Cashback", callback_data="Cashback"),
+    InlineKeyboardButton(text="Прочее", callback_data="Other"),
+]
+
+__months_buttons: list[InlineKeyboardButton] = [
+    InlineKeyboardButton(text=month[0],
+                         callback_data=month[1])
+    for i, month in enumerate(months)
+]
+__default_categories_buttons: list[InlineKeyboardButton] = [
+    InlineKeyboardButton(text=category, callback_data=category)
+    for category in default_categories
+]
 
 menu_keyboard = InlineKeyboardBuilder()
 statistic_keyboard = InlineKeyboardBuilder()
@@ -67,16 +74,17 @@ check_keyboard = InlineKeyboardBuilder()
 categories_keyboard = InlineKeyboardBuilder()
 months_keyboard = InlineKeyboardBuilder()
 default_keyboard.row(*standart_buttons)
+
 [statistic_keyboard.row(button) for button in __statistic_buttons]
 
-[enrollment_keyboard.row(button) for button in __enrollment_buttons]
+[enrollment_keyboard.add(button) for button in __enrollment_categories_buttons]
+enrollment_keyboard.row(standart_buttons[0])
 
 [change_self_keyboard.row(button) for button in __change_self_buttons]
 
 months_keyboard.row(*__months_buttons[0:2:])
 months_keyboard.row(*__months_buttons[2::], width=3)
 months_keyboard.row(*standart_buttons)
-
 
 check_keyboard.add(*standart_buttons + [check_button])
 categories_keyboard.row(*__default_categories_buttons[:3])
